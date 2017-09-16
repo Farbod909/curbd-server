@@ -3,11 +3,15 @@ from django.core.mail import send_mail
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+from django.core.validators import MaxValueValidator
 
 
 from .managers import UserManager
 
+
 class User(AbstractBaseUser, PermissionsMixin):
+
     email = models.EmailField(_('email address'), unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=False)
     last_name = models.CharField(_('last name'), max_length=30, blank=False)
@@ -43,3 +47,31 @@ class User(AbstractBaseUser, PermissionsMixin):
         Sends an email to this User.
         '''
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+class Customer(models.Model):
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # TODO: add Customer specific data
+
+
+class Host(models.Model):
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # TODO: add Host specific data
+
+
+class Car(models.Model):
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+    color = models.CharField(max_length=25)
+    make = models.CharField(max_length=25)
+    model = models.CharField(max_length=25)
+    year = models.CharField(max_length=25)
+
+
+class Rating(models.Model):
+
+    number = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
+    host = models.ForeignKey(Host, on_delete=models.CASCADE)
