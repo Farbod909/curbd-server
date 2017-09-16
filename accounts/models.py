@@ -69,6 +69,7 @@ class Car(models.Model):
     make = models.CharField(max_length=25)
     model = models.CharField(max_length=25)
     year = models.CharField(max_length=25)
+    license_plate = models.CharField(max_length=15)
 
 
 class Rating(models.Model):
