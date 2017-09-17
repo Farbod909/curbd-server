@@ -1,24 +1,49 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from .fields import ChoiceArrayField
 from accounts.models import Car, Host
+from enum import Enum
+
+
+class VehicleSize(Enum):
+    Motorcycle = 1
+    Compact = 2
+    Mid_sized = 3
+    Large = 4
+    Oversized = 5
+
+
+class ParkingSpaceFeature(Enum):
+    EV_charging = "EV Charging"
+    Lit = "Lit"
+    Covered = "Covered"
+    Guarded = "Guarded"
+
+
+class Weekday(Enum):
+    Sunday = 'Sun'
+    Monday = 'Mon'
+    Tuesday = 'Tue'
+    Wednesday = 'Wed'
+    Thursday = 'Thu'
+    Friday = 'Fri'
+    Saturday = 'Sat'
 
 
 class ParkingSpace(models.Model):
 
-    AUTOMOBILE_SIZES = (
-        (1, "Motorcycle"),
-        (2, "Compact"),
-        (3, "Mid-sized"),
-        (4, "Large"),
-        (5, "Oversized"),
+    VEHICLE_SIZES = (
+        (VehicleSize.Motorcycle.value, "Motorcycle"),
+        (VehicleSize.Compact.value, "Compact"),
+        (VehicleSize.Mid_sized.value, "Mid-sized"),
+        (VehicleSize.Large.value, "Large"),
+        (VehicleSize.Oversized.value, "Oversized"),
     )
 
     FEATURES = (
-        ("EV Charging", "EV Charging"),
-        ("Lit", "Lit"),
-        ("Covered", "Covered"),
-        ("Guarded", "Guarded"),
+        (ParkingSpaceFeature.EV_charging.value, "EV Charging"),
+        (ParkingSpaceFeature.Lit.value, "Lit"),
+        (ParkingSpaceFeature.Covered.value, "Covered"),
+        (ParkingSpaceFeature.Guarded.value, "Guarded"),
     )
 
     host = models.ForeignKey(
@@ -30,10 +55,11 @@ class ParkingSpace(models.Model):
 
     size = models.PositiveIntegerField(
         "Max supported automobile size",
-        choices=AUTOMOBILE_SIZES,
+        choices=VEHICLE_SIZES,
         help_text="This is the maximum vehicle size the parking space can support")
     features = ChoiceArrayField(
         models.CharField(max_length=50, choices=FEATURES),
+        blank=True,
         help_text="A list of features e.g. EV charging, shade, etc.")
 
     address = models.CharField(
@@ -61,7 +87,7 @@ class FixedAvailability(models.Model):
         verbose_name_plural = 'fixed availabilities'
 
     def __str__(self):
-        return "%s: %s -> %s" % (
+        return "%s: %s - %s" % (
             self.parking_space,
             self.start_datetime.strftime("%Y-%m-%d %H:%M"),
             self.end_datetime.strftime("%Y-%m-%d %H:%M"))
@@ -70,19 +96,19 @@ class FixedAvailability(models.Model):
 class RepeatingAvailability(models.Model):
 
     DAYS_OF_THE_WEEK = (
-        (0, 'Sunday'),
-        (1, 'Monday'),
-        (2, 'Tuesday'),
-        (3, 'Wednesday'),
-        (4, 'Thursday'),
-        (5, 'Friday'),
-        (6, 'Saturday'),
+        (Weekday.Sunday.value, 'Sunday'),
+        (Weekday.Monday.value, 'Monday'),
+        (Weekday.Tuesday.value, 'Tuesday'),
+        (Weekday.Wednesday.value, 'Wednesday'),
+        (Weekday.Thursday.value, 'Thursday'),
+        (Weekday.Friday.value, 'Friday'),
+        (Weekday.Saturday.value, 'Saturday'),
     )
 
     start_time = models.TimeField()
     end_time = models.TimeField()
-    repeating_days = ArrayField(
-        models.IntegerField(choices=DAYS_OF_THE_WEEK))
+    repeating_days = ChoiceArrayField(
+        models.CharField(max_length=15, choices=DAYS_OF_THE_WEEK))
 
     parking_space = models.ForeignKey(
         ParkingSpace, on_delete=models.CASCADE)
@@ -91,6 +117,14 @@ class RepeatingAvailability(models.Model):
 
     class Meta:
         verbose_name_plural = 'repeating availabilities'
+
+    def __str__(self):
+        repeating_days = ', '.join(self.repeating_days)
+        return '%s: Every %s, %s - %s' % (
+            self.parking_space,
+            repeating_days,
+            self.start_time.strftime("%H:%M"),
+            self.end_time.strftime("%H:%M"))
 
 
 class Reservation(models.Model):
@@ -110,9 +144,14 @@ class Reservation(models.Model):
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
-        return "%s @ %s: %s -> %s" % (
-            self.car
-            self.fixed_availability.parking_space,
-            self.start_time.strftime("%H:%M"),
-            self.end_time.strftime("%H:%M"))
 
+        if self.for_repeating:
+            parking_space = self.repeating_availability.parking_space
+        else:
+            parking_space = self.fixed_availability.parking_space
+
+        return "%s @ %s: %s - %s" % (
+                self.car,
+                parking_space,
+                self.start_time.strftime("%H:%M"),
+                self.end_time.strftime("%H:%M"))
