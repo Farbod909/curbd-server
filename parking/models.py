@@ -5,17 +5,33 @@ from accounts.models import Car, Host
 
 class ParkingSpace(models.Model):
 
-    host = models.ForeignKey(Host, on_delete=models.CASCADE)
+    AUTOMOBILE_SIZES = (
+        (1, "Motorcycle"),
+        (2, "Compact"),
+        (3, "Mid-sized"),
+        (4, "Large"),
+        (5, "Oversized"),
+    )
+
+    host = models.ForeignKey(
+        Host, on_delete=models.CASCADE,
+        help_text="The host that the parking space belongs to")
 
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
-    features = ArrayField(models.CharField(max_length=50))
-    address = models.CharField(max_length=50)  # The address will be stored as "<number> <street>" e.g. "123 Robertson"
+    size = models.PositiveIntegerField(
+        "Supported Automobile size",
+        choices=AUTOMOBILE_SIZES,
+        help_text="This is the maximum vehicle size the parking space can support")
+    features = ArrayField(
+        models.CharField(max_length=50),
+        help_text="A list of features e.g. EV charging, shade, etc.")
 
-    description = models.CharField(max_length=50, null=True)
-
-    # TODO: car sizes the space supports
+    address = models.CharField(
+        max_length=50,
+        help_text="Please store as: '<number> <street>' e.g. '123 Robertson'")
+    description = models.CharField(max_length=100, blank=True)
     # TODO: parking space photos
 
 
@@ -25,8 +41,9 @@ class FixedAvailability(models.Model):
     end_datetime = models.DateTimeField()
 
     parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
-
-    # TODO: pricing
+    pricing = models.PositiveIntegerField(
+        default=15, help_text="The cost of parking at the space for 5 minutes")
+    # This is the price the CUSTOMER pays (not what the HOST earns)
 
 
 class RepeatingAvailability(models.Model):
@@ -43,9 +60,11 @@ class RepeatingAvailability(models.Model):
 
     start_time = models.TimeField()
     end_time = models.TimeField()
-    repeating_days = ArrayField(models.IntegerField(choices=DAYS_OF_THE_WEEK))
+    repeating_days = ArrayField(
+        models.IntegerField(choices=DAYS_OF_THE_WEEK))
 
-    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
+    parking_space = models.ForeignKey(
+        ParkingSpace, on_delete=models.CASCADE)
 
     # TODO: pricing
 
@@ -61,5 +80,7 @@ class Reservation(models.Model):
     # determines if this reservation is for a
     # RepeatingAvailability or a FixedAvailability
 
-    fixed_availability = models.ForeignKey(FixedAvailability, on_delete=models.CASCADE, null=True)
-    repeating_availability = models.ForeignKey(RepeatingAvailability, on_delete=models.CASCADE, null=True)
+    fixed_availability = models.ForeignKey(
+        FixedAvailability, on_delete=models.PROTECT, null=True)
+    repeating_availability = models.ForeignKey(
+        RepeatingAvailability, on_delete=models.PROTECT, null=True)
