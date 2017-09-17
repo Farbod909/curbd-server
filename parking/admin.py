@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 
-# Register your models here.
+admin.site.register(ParkingSpace)
+admin.site.register(FixedAvailability)
+admin.site.register(RepeatingAvailability)
+admin.site.register(Reservation)

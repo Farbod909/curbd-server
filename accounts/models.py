@@ -54,11 +54,17 @@ class Customer(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # TODO: add Customer specific data
 
+    def __str__(self):
+        return "Customer: %s %s" % (self.user.first_name, self.user.last_name)
+
 
 class Host(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # TODO: add Host specific data
+
+    def __str__(self):
+        return "Host: %s %s" % (self.user.first_name, self.user.last_name)
 
 
 class Car(models.Model):
@@ -66,10 +72,15 @@ class Car(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     color = models.CharField(max_length=25)
+    year = models.CharField(max_length=25)
     make = models.CharField(max_length=25)
     model = models.CharField(max_length=25)
-    year = models.CharField(max_length=25)
     license_plate = models.CharField(max_length=15, unique=True)
+
+    def __str__(self):
+        return "%s: %s %s %s %s" % (
+            self.license_plate, self.color, self.year, self.make, self.model)
+
 
 
 class Rating(models.Model):

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from .fields import ChoiceArrayField
 from accounts.models import Car, Host
 
 
@@ -13,6 +14,13 @@ class ParkingSpace(models.Model):
         (5, "Oversized"),
     )
 
+    FEATURES = (
+        ("EV Charging", "EV Charging"),
+        ("Lit", "Lit"),
+        ("Covered", "Covered"),
+        ("Guarded", "Guarded"),
+    )
+
     host = models.ForeignKey(
         Host, on_delete=models.CASCADE,
         help_text="The host that the parking space belongs to")
@@ -21,18 +29,22 @@ class ParkingSpace(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
     size = models.PositiveIntegerField(
-        "Supported Automobile size",
+        "Max supported automobile size",
         choices=AUTOMOBILE_SIZES,
         help_text="This is the maximum vehicle size the parking space can support")
-    features = ArrayField(
-        models.CharField(max_length=50),
+    features = ChoiceArrayField(
+        models.CharField(max_length=50, choices=FEATURES),
         help_text="A list of features e.g. EV charging, shade, etc.")
 
     address = models.CharField(
         max_length=50,
-        help_text="Please store as: '<number> <street>' e.g. '123 Robertson'")
+        help_text="Please store as: '[number] [street]' e.g. '123 Robertson'")
     description = models.CharField(max_length=100, blank=True)
+
     # TODO: parking space photos
+
+    def __str__(self):
+        return self.address
 
 
 class FixedAvailability(models.Model):
@@ -44,6 +56,15 @@ class FixedAvailability(models.Model):
     pricing = models.PositiveIntegerField(
         default=15, help_text="The cost of parking at the space for 5 minutes")
     # This is the price the CUSTOMER pays (not what the HOST earns)
+
+    class Meta:
+        verbose_name_plural = 'fixed availabilities'
+
+    def __str__(self):
+        return "%s: %s -> %s" % (
+            self.parking_space,
+            self.start_datetime.strftime("%Y-%m-%d %H:%M"),
+            self.end_datetime.strftime("%Y-%m-%d %H:%M"))
 
 
 class RepeatingAvailability(models.Model):
@@ -65,8 +86,11 @@ class RepeatingAvailability(models.Model):
 
     parking_space = models.ForeignKey(
         ParkingSpace, on_delete=models.CASCADE)
+    pricing = models.PositiveIntegerField(
+        default=15, help_text="The cost of parking at the space for 5 minutes")
 
-    # TODO: pricing
+    class Meta:
+        verbose_name_plural = 'repeating availabilities'
 
 
 class Reservation(models.Model):
@@ -81,6 +105,14 @@ class Reservation(models.Model):
     # RepeatingAvailability or a FixedAvailability
 
     fixed_availability = models.ForeignKey(
-        FixedAvailability, on_delete=models.PROTECT, null=True)
+        FixedAvailability, on_delete=models.PROTECT, blank=True, null=True)
     repeating_availability = models.ForeignKey(
-        RepeatingAvailability, on_delete=models.PROTECT, null=True)
+        RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
+
+    def __str__(self):
+        return "%s @ %s: %s -> %s" % (
+            self.car
+            self.fixed_availability.parking_space,
+            self.start_time.strftime("%H:%M"),
+            self.end_time.strftime("%H:%M"))
+
