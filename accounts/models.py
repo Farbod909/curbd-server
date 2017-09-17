@@ -23,6 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+    EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
 
     class Meta:
@@ -82,8 +83,7 @@ class Car(models.Model):
             self.license_plate, self.color, self.year, self.make, self.model)
 
 
-
 class Rating(models.Model):
 
-    number = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
+    value = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
     host = models.ForeignKey(Host, on_delete=models.CASCADE)
