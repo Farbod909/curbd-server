@@ -2,6 +2,8 @@ from django.db import models
 from .fields import ChoiceArrayField
 from accounts.models import Car, Host
 from enum import Enum
+from django.core.exceptions import ValidationError
+import calendar
 
 
 class VehicleSize(Enum):
@@ -53,6 +55,13 @@ class ParkingSpace(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
+    available_spaces = models.PositiveIntegerField(
+        "Number of spaces available",
+        help_text="NOTE: Each individual parking space should be positioned such that "
+                  "each car can arrive and leave independent of other cars currently "
+                  "parked at that location. If this is not possible, please enter "
+                  "'1' as the number of spaces available.",
+        default=1)
     size = models.PositiveIntegerField(
         "Max supported automobile size",
         choices=VEHICLE_SIZES,
@@ -63,9 +72,12 @@ class ParkingSpace(models.Model):
         help_text="A list of features e.g. EV charging, shade, etc.")
 
     address = models.CharField(
+        "Street address",
         max_length=50,
-        help_text="Please store as: '[number] [street]' e.g. '123 Robertson'")
-    description = models.CharField(max_length=100, blank=True)
+        help_text="e.g. '123 Robertson'")
+    description = models.CharField(
+        max_length=100, blank=True,
+        help_text="Any description that will help customers find the parking spot")
 
     # TODO: parking space photos
 
@@ -75,12 +87,14 @@ class ParkingSpace(models.Model):
 
 class FixedAvailability(models.Model):
 
+    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
+
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
 
-    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
     pricing = models.PositiveIntegerField(
-        default=15, help_text="The cost of parking at the space for 5 minutes")
+        default=15,
+        help_text="The cost (in U.S. cents) of parking at the space for 5 minutes")
     # This is the price the CUSTOMER pays (not what the HOST earns)
 
     class Meta:
@@ -105,15 +119,18 @@ class RepeatingAvailability(models.Model):
         (Weekday.Saturday.value, 'Saturday'),
     )
 
+    parking_space = models.ForeignKey(
+        ParkingSpace, on_delete=models.CASCADE)
+
     start_time = models.TimeField()
     end_time = models.TimeField()
     repeating_days = ChoiceArrayField(
         models.CharField(max_length=15, choices=DAYS_OF_THE_WEEK))
 
-    parking_space = models.ForeignKey(
-        ParkingSpace, on_delete=models.CASCADE)
     pricing = models.PositiveIntegerField(
-        default=15, help_text="The cost of parking at the space for 5 minutes")
+        default=15,
+        help_text="The cost (in U.S. cents) of parking at the space for 5 minutes")
+    # This is the price the CUSTOMER pays (not what the HOST earns)
 
     class Meta:
         verbose_name_plural = 'repeating availabilities'
@@ -131,10 +148,10 @@ class Reservation(models.Model):
 
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
 
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
 
-    for_repeating = models.BooleanField()
+    for_repeating = models.BooleanField(editable=False)
     # determines if this reservation is for a
     # RepeatingAvailability or a FixedAvailability
 
@@ -142,6 +159,29 @@ class Reservation(models.Model):
         FixedAvailability, on_delete=models.PROTECT, blank=True, null=True)
     repeating_availability = models.ForeignKey(
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
+
+    # def validate(self, data):
+    #     if data['for_repeating']:
+    #         weekday = calendar.day_name[data['start_datetime'].weekday()][:3]  # first 3 letters of weekday e.g. 'Mon'
+    #         if weekday not in data['repeating_availability'].repeating_days:
+    #             raise ValidationError('Reservation is not a valid weekday')
+    #         if data['start_datetime'].time() < data['repeating_availability'].start_time or \
+    #                         data['end_datetime'].time() > data['repeating_availability'].end_time:
+    #             raise ValidationError('Start and end time of reservation is not within '
+    #                                   'bounds of start and end time of availability')
+    #     else:
+    #         if data['start_datetime'] < data['fixed_availability'].start_datetime or \
+    #                         data['end_datetime'] > data['fixed_availability'].end_datetime:
+    #             raise ValidationError('Start and end time of reservation is not within '
+    #                                   'bounds of start and end time of availability')
+
+    def save(self, *args, **kwargs):
+        if self.repeating_availability is None:
+            self.for_repeating = False
+        else:
+            self.for_repeating = True
+
+        super(Reservation, self).save(*args, **kwargs)
 
     def __str__(self):
 
@@ -153,5 +193,5 @@ class Reservation(models.Model):
         return "%s @ %s: %s - %s" % (
                 self.car,
                 parking_space,
-                self.start_time.strftime("%H:%M"),
-                self.end_time.strftime("%H:%M"))
+                self.start_datetime.strftime("%H:%M"),
+                self.end_datetime.strftime("%H:%M"))
