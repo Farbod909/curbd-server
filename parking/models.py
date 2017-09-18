@@ -3,7 +3,8 @@ from .fields import ChoiceArrayField
 from accounts.models import Car, Host
 from enum import Enum
 from django.core.exceptions import ValidationError
-import calendar
+import calendar, datetime
+import pytz
 
 
 class VehicleSize(Enum):
@@ -100,6 +101,20 @@ class FixedAvailability(models.Model):
     class Meta:
         verbose_name_plural = 'fixed availabilities'
 
+    def check_end_comes_after_start(self):
+        if self.start_datetime > self.end_datetime:
+            raise ValidationError("Availability end time must come after start time")
+
+    def check_ends_after_current_time(self):
+        if self.end_datetime < pytz.utc.localize(datetime.datetime.now()):
+            raise ValidationError("Availability end time must come after current time")
+
+    def save(self, *args, **kwargs):
+        self.check_end_comes_after_start()
+        self.check_ends_after_current_time()
+
+        super(FixedAvailability, self).save(*args, **kwargs)
+
     def __str__(self):
         return "%s: %s - %s" % (
             self.parking_space,
@@ -135,6 +150,15 @@ class RepeatingAvailability(models.Model):
     class Meta:
         verbose_name_plural = 'repeating availabilities'
 
+    def check_end_comes_after_start(self):
+        if self.start_time > self.end_time:
+            raise ValidationError("Availability end time must come after start time")
+
+    def save(self, *args, **kwargs):
+        self.check_end_comes_after_start()
+
+        super(RepeatingAvailability, self).save(*args, **kwargs)
+
     def __str__(self):
         repeating_days = ', '.join(self.repeating_days)
         return '%s: Every %s, %s - %s' % (
@@ -160,26 +184,39 @@ class Reservation(models.Model):
     repeating_availability = models.ForeignKey(
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
 
-    # def validate(self, data):
-    #     if data['for_repeating']:
-    #         weekday = calendar.day_name[data['start_datetime'].weekday()][:3]  # first 3 letters of weekday e.g. 'Mon'
-    #         if weekday not in data['repeating_availability'].repeating_days:
-    #             raise ValidationError('Reservation is not a valid weekday')
-    #         if data['start_datetime'].time() < data['repeating_availability'].start_time or \
-    #                         data['end_datetime'].time() > data['repeating_availability'].end_time:
-    #             raise ValidationError('Start and end time of reservation is not within '
-    #                                   'bounds of start and end time of availability')
-    #     else:
-    #         if data['start_datetime'] < data['fixed_availability'].start_datetime or \
-    #                         data['end_datetime'] > data['fixed_availability'].end_datetime:
-    #             raise ValidationError('Start and end time of reservation is not within '
-    #                                   'bounds of start and end time of availability')
+    def set_for_repeating_field(self):
+        if self.for_repeating is None:
+            if self.repeating_availability is None:
+                self.for_repeating = False
+            else:
+                self.for_repeating = True
+
+    def check_end_comes_after_start(self):
+        if self.start_datetime > self.end_datetime:
+            raise ValidationError("Reservation end time must come after start time")
+
+    def check_start_and_end_within_availability_bounds(self):
+        if self.for_repeating:
+            weekday = calendar.day_name[self.start_datetime.weekday()][:3]  # first 3 letters of weekday e.g. 'Mon'
+            if weekday not in self.repeating_availability.repeating_days:
+                raise ValidationError('Reservation is not a valid weekday')
+            if self.start_datetime.time() < self.repeating_availability.start_time or \
+                    self.end_datetime.time() > self.repeating_availability.end_time:
+                raise ValidationError("Start and end time of reservation is not within "
+                                      "bounds of start and end time of availability")
+        else:
+            if self.start_datetime < self.fixed_availability.start_datetime or \
+                    self.end_datetime > self.fixed_availability.end_datetime:
+                raise ValidationError("Start and end time of reservation is not within "
+                                      "bounds of start and end time of availability")
 
     def save(self, *args, **kwargs):
-        if self.repeating_availability is None:
-            self.for_repeating = False
-        else:
-            self.for_repeating = True
+
+        self.set_for_repeating_field()  # set the 'for_repeating' field
+        self.check_end_comes_after_start()  # make sure reservation end time comes after its start time
+        self.check_start_and_end_within_availability_bounds()
+        # make sure reservation start and end time are within
+        # start and end time of its availability
 
         super(Reservation, self).save(*args, **kwargs)
 
