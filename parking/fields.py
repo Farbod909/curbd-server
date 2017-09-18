@@ -20,6 +20,7 @@ class ChoiceArrayField(ArrayField):
         defaults = {
             'form_class': forms.MultipleChoiceField,
             'choices': self.base_field.choices,
+            'widget': forms.CheckboxSelectMultiple,
         }
         defaults.update(kwargs)
         # Skip our parent's formfield implementation completely as we don't

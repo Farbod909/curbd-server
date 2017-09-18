@@ -56,7 +56,7 @@ class Customer(models.Model):
     # TODO: add Customer specific data
 
     def __str__(self):
-        return "Customer: %s %s" % (self.user.first_name, self.user.last_name)
+        return "%s %s" % (self.user.first_name, self.user.last_name)
 
 
 class Host(models.Model):
@@ -65,7 +65,7 @@ class Host(models.Model):
     # TODO: add Host specific data
 
     def __str__(self):
-        return "Host: %s %s" % (self.user.first_name, self.user.last_name)
+        return "%s %s" % (self.user.first_name, self.user.last_name)
 
 
 class Car(models.Model):
