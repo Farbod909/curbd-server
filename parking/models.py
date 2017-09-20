@@ -5,6 +5,7 @@ from enum import Enum
 from django.core.exceptions import ValidationError
 import calendar, datetime
 import pytz
+from django.utils import timezone
 
 
 class VehicleSize(Enum):
@@ -106,7 +107,7 @@ class FixedAvailability(models.Model):
             raise ValidationError("Availability end time must come after start time")
 
     def check_ends_after_current_time(self):
-        if self.end_datetime < pytz.utc.localize(datetime.datetime.now()):
+        if self.end_datetime < timezone.now():
             raise ValidationError("Availability end time must come after current time")
 
     def save(self, *args, **kwargs):
@@ -118,8 +119,8 @@ class FixedAvailability(models.Model):
     def __str__(self):
         return "%s: %s - %s" % (
             self.parking_space,
-            self.start_datetime.strftime("%Y-%m-%d %H:%M"),
-            self.end_datetime.strftime("%Y-%m-%d %H:%M"))
+            timezone.localtime(self.start_datetime).strftime("%Y-%m-%d %H:%M"),
+            timezone.localtime(self.end_datetime).strftime("%Y-%m-%d %H:%M"))
 
 
 class RepeatingAvailability(models.Model):
