@@ -3,8 +3,20 @@ from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Rese
 
 
 class FixedAvailabilityAdmin(admin.ModelAdmin):
-    list_display = ('parking_space', 'start_datetime', 'end_datetime', 'pricing')
+    list_display = ('parking_space', 'get_start', 'get_end', 'get_pricing')
     ordering = ('start_datetime',)
+
+    def get_start(self, obj):
+        return obj.start_datetime
+    get_start.short_description = 'start'
+
+    def get_end(self, obj):
+        return obj.end_datetime
+    get_end.short_description = 'end'
+
+    def get_pricing(self, obj):
+        return '$' + str((obj.pricing * 12)/100) + ' / hr'
+    get_pricing.short_description = 'price'
 
 
 admin.site.register(ParkingSpace)
