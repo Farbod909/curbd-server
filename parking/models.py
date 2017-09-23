@@ -128,6 +128,13 @@ class FixedAvailability(models.Model):
         if self.end_datetime < timezone.now():
             raise ValidationError("Availability end time must come after current time")
 
+    def check_overlap_with_fixed_availabilities(self):
+        fixed_availabilities = FixedAvailability.objects.filter(parking_space=self.parking_space)
+
+        for fixed_availability in fixed_availabilities:
+            if (self.start_datetime <= fixed_availability.end_datetime) and (self.end_datetime >= fixed_availability.start_datetime):
+                raise ValidationError("Overlaps with other availability")
+
     def check_overlap_with_repeating_availabilities(self):
         repeating_availabilities = RepeatingAvailability.objects.filter(parking_space=self.parking_space)
         fixed_availability = self
@@ -165,6 +172,7 @@ class FixedAvailability(models.Model):
     def save(self, *args, **kwargs):
         self.check_end_comes_after_start()
         self.check_ends_after_current_time()
+        self.check_overlap_with_fixed_availabilities()
         self.check_overlap_with_repeating_availabilities()
 
         super(FixedAvailability, self).save(*args, **kwargs)
