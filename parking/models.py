@@ -33,19 +33,6 @@ class Weekday(Enum):
     Saturday = 'Sat'
 
 
-def get_weekday_span_between(weekday1, weekday2):
-    weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    weekday1_index = weekdays.index(weekday1)
-    weekday2_index = weekdays.index(weekday2)
-
-    if weekday1_index == weekday2_index:
-        return [weekday1]
-    elif weekday1_index < weekday2_index:
-        return weekdays[weekday1_index:weekday2_index+1]
-    else:
-        return weekdays[weekday1_index:] + weekdays[:weekday2_index+1]
-
-
 class ParkingSpace(models.Model):
 
     VEHICLE_SIZES = (
@@ -121,6 +108,18 @@ class FixedAvailability(models.Model):
         return delta.days*24 + delta.seconds/3600
 
     def get_weekday_span(self):
+        def get_weekday_span_between(weekday1, weekday2):
+            weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            weekday1_index = weekdays.index(weekday1)
+            weekday2_index = weekdays.index(weekday2)
+
+            if weekday1_index == weekday2_index:
+                return [weekday1]
+            elif weekday1_index < weekday2_index:
+                return weekdays[weekday1_index:weekday2_index + 1]
+            else:
+                return weekdays[weekday1_index:] + weekdays[:weekday2_index + 1]
+
         return get_weekday_span_between(
                 calendar.day_name[timezone.localtime(self.start_datetime).weekday()][:3],
                 calendar.day_name[timezone.localtime(self.end_datetime).weekday()][:3])
