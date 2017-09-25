@@ -1,12 +1,15 @@
 from django.db import models
-from .fields import ChoiceArrayField
-from accounts.models import Car, Host
-from enum import Enum
 from django.core.exceptions import ValidationError
-import calendar, datetime
-import pytz
 from django.utils import timezone
 from django.db.models import Q
+
+from enum import Enum
+import calendar
+import datetime
+import pytz
+
+from .fields import ChoiceArrayField
+from accounts.models import Car, Host
 
 
 class VehicleSize(Enum):
