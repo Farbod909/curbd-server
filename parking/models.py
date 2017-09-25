@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 import calendar, datetime
 import pytz
 from django.utils import timezone
+from django.db.models import Q
 
 
 class VehicleSize(Enum):
@@ -305,6 +306,20 @@ class Reservation(models.Model):
                 raise ValidationError("Start and end time of reservation is not within "
                                       "bounds of start and end time of availability")
 
+    def check_reservation_overlap(self):
+        if self.for_repeating:
+            parking_space = self.repeating_availability.parking_space
+        else:
+            parking_space = self.fixed_availability.parking_space
+
+            reservations = Reservation.objects.filter(
+                Q(repeating_availability__parking_space=parking_space) |
+                Q(fixed_availability__parking_space=parking_space))
+
+        for reservation in reservations:
+            if (self.start_datetime <= reservation.end_datetime) and (self.end_datetime >= reservation.start_datetime):
+                raise ValidationError("Overlaps with other reservation")
+
     def save(self, *args, **kwargs):
 
         self.set_for_repeating_field()  # set the 'for_repeating' field
@@ -312,6 +327,7 @@ class Reservation(models.Model):
         self.check_start_and_end_within_availability_bounds()
         # make sure reservation start and end time are within
         # start and end time of its availability
+        self.check_reservation_overlap()
 
         super(Reservation, self).save(*args, **kwargs)
 
@@ -325,5 +341,5 @@ class Reservation(models.Model):
         return "%s @ %s: %s - %s" % (
                 self.car,
                 parking_space,
-                self.start_datetime.strftime("%H:%M"),
-                self.end_datetime.strftime("%H:%M"))
+                timezone.localtime(self.start_datetime).strftime("%H:%M"),
+                timezone.localtime(self.end_datetime).strftime("%H:%M"))
