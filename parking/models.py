@@ -136,12 +136,19 @@ class FixedAvailability(models.Model):
     def check_overlap_with_fixed_availabilities(self):
         fixed_availabilities = FixedAvailability.objects.filter(parking_space=self.parking_space)
 
+        if self.pk is not None:
+            fixed_availabilities = fixed_availabilities.exclude(pk=self.pk)
+
         for fixed_availability in fixed_availabilities:
             if (self.start_datetime <= fixed_availability.end_datetime) and (self.end_datetime >= fixed_availability.start_datetime):
                 raise ValidationError("Overlaps with other availability")
 
     def check_overlap_with_repeating_availabilities(self):
         repeating_availabilities = RepeatingAvailability.objects.filter(parking_space=self.parking_space)
+
+        if self.pk is not None:
+            repeating_availabilities = repeating_availabilities.exclude(pk=self.pk)
+
         fixed_availability = self
 
         # 168 hours is equivalent to one week. If the duration of the
@@ -221,6 +228,10 @@ class RepeatingAvailability(models.Model):
 
     def check_overlap_with_fixed_availabilities(self):
         fixed_availabilities = FixedAvailability.objects.filter(parking_space=self.parking_space)
+
+        if self.pk is not None:
+            fixed_availabilities = fixed_availabilities.exclude(pk=self.pk)
+
         repeating_availability = self
 
         for fixed_availability in fixed_availabilities:
@@ -242,6 +253,9 @@ class RepeatingAvailability(models.Model):
 
     def check_overlap_with_repeating_availabilities(self):
         repeating_availabilities = RepeatingAvailability.objects.filter(parking_space=self.parking_space)
+
+        if self.pk is not None:
+            repeating_availabilities = repeating_availabilities.exclude(pk=self.pk)
 
         for repeating_availability in repeating_availabilities:
             if list(set(self.repeating_days) & set(repeating_availability.repeating_days)):
@@ -312,9 +326,12 @@ class Reservation(models.Model):
         else:
             parking_space = self.fixed_availability.parking_space
 
-            reservations = Reservation.objects.filter(
-                Q(repeating_availability__parking_space=parking_space) |
-                Q(fixed_availability__parking_space=parking_space))
+        reservations = Reservation.objects.filter(
+            Q(repeating_availability__parking_space=parking_space) |
+            Q(fixed_availability__parking_space=parking_space))
+
+        if self.pk is not None:
+            reservations = reservations.exclude(pk=self.pk)
 
         for reservation in reservations:
             if (self.start_datetime <= reservation.end_datetime) and (self.end_datetime >= reservation.start_datetime):
