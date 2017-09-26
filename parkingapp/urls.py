@@ -16,7 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+import parking.views
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^available_spaces', parking.views.get_available_parking_spaces),
 ]

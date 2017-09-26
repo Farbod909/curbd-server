@@ -341,7 +341,6 @@ class Reservation(models.Model):
                 raise ValidationError("Overlaps with other reservation")
 
     def save(self, *args, **kwargs):
-
         self.set_for_repeating_field()  # set the 'for_repeating' field
         self.check_end_comes_after_start()  # make sure reservation end time comes after its start time
         self.check_start_and_end_within_availability_bounds()
@@ -352,7 +351,6 @@ class Reservation(models.Model):
         super(Reservation, self).save(*args, **kwargs)
 
     def __str__(self):
-
         if self.for_repeating:
             parking_space = self.repeating_availability.parking_space
         else:
