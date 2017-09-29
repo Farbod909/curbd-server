@@ -87,6 +87,17 @@ class ParkingSpace(models.Model):
 
     # TODO: parking space photos
 
+    def unreserved_spaces(self, start_datetime, end_datetime) -> int:
+        num = self.available_spaces
+
+        for fa in self.fixedavailability_set.all():
+            for reservation in fa.reservation_set.all():
+                pass
+
+        for ra in self.repeatingavailability_set.all():
+            for reservation in ra.reservation_set.all():
+                pass
+
     def __str__(self):
         return self.address
 
