@@ -1,13 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods, require_safe
+from django.core import serializers
+from django.http import JsonResponse
+
 
 from .models import ParkingSpace
 
 
+@require_safe
 def get_available_parking_spaces(request):
     latitude = request.GET.get('lat')
     longitude = request.GET.get('long')
-    radius = request.GET.get('radius')
+    radius = request.GET.get('radius')  # radius in miles
 
     # TODO: fix accuracy of radius search
     locations_within_radius = ParkingSpace.objects.raw(
@@ -25,4 +30,7 @@ def get_available_parking_spaces(request):
         }
     )
 
-    return HttpResponse(locations_within_radius)
+    # TODO: check 'available_spaces' field against reservations to get availability
+
+    json_obj = serializers.serialize('json', locations_within_radius)
+    return HttpResponse(json_obj, content_type='application/json')
