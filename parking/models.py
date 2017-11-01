@@ -91,12 +91,14 @@ class ParkingSpace(models.Model):
         num = self.available_spaces
 
         for fa in self.fixedavailability_set.all():
-            for reservation in fa.reservation_set.all():
-                pass
+            if fa.is_reserved(start_datetime, end_datetime):
+                num -= 1
 
         for ra in self.repeatingavailability_set.all():
-            for reservation in ra.reservation_set.all():
-                pass
+            if ra.is_reserved(start_datetime, end_datetime):
+                num -= 1
+
+        return num
 
     def __str__(self):
         return self.address
@@ -201,6 +203,13 @@ class FixedAvailability(models.Model):
 
         super(FixedAvailability, self).save(*args, **kwargs)
 
+    def is_reserved(self, start_datetime, end_datetime):
+        for reservation in self.reservation_set.all():
+            if reservation.overlaps_with(start_datetime, end_datetime):
+                return True
+
+        return False
+
     def __str__(self):
         return "%s: %s - %s" % (
             self.parking_space,
@@ -283,6 +292,13 @@ class RepeatingAvailability(models.Model):
 
         super(RepeatingAvailability, self).save(*args, **kwargs)
 
+    def is_reserved(self, start_datetime, end_datetime):
+        for reservation in self.reservation_set.all():
+            if reservation.overlaps_with(start_datetime, end_datetime):
+                return True
+
+        return False
+
     def __str__(self):
         repeating_days = ', '.join(self.repeating_days)
         return '%s: Every %s, %s - %s' % (
@@ -348,7 +364,7 @@ class Reservation(models.Model):
             reservations = reservations.exclude(pk=self.pk)
 
         for reservation in reservations:
-            if (self.start_datetime <= reservation.end_datetime) and (self.end_datetime >= reservation.start_datetime):
+            if self.overlaps_with(reservation.start_datetime, reservation.end_datetime):
                 raise ValidationError("Overlaps with other reservation")
 
     def save(self, *args, **kwargs):
@@ -361,6 +377,9 @@ class Reservation(models.Model):
 
         super(Reservation, self).save(*args, **kwargs)
 
+    def overlaps_with(self, start_datetime, end_datetime):
+        return (self.start_datetime <= end_datetime) and (self.end_datetime >= start_datetime)
+
     def __str__(self):
         if self.for_repeating:
             parking_space = self.repeating_availability.parking_space
@@ -370,5 +389,5 @@ class Reservation(models.Model):
         return "%s @ %s: %s - %s" % (
                 self.car,
                 parking_space,
-                timezone.localtime(self.start_datetime).strftime("%H:%M"),
-                timezone.localtime(self.end_datetime).strftime("%H:%M"))
+                timezone.localtime(self.start_datetime).strftime("%H:%M on %b %d, %Y"),
+                timezone.localtime(self.end_datetime).strftime("%H:%M on %b %d, %Y"))
