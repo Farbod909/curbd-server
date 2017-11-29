@@ -87,8 +87,24 @@ class ParkingSpace(models.Model):
 
     # TODO: parking space photos
 
+    def is_within_any_availability(self, start_datetime, end_datetime):
+        for fa in self.fixedavailability_set.all():
+            if start_datetime > fa.start_datetime and end_datetime < fa.end_datetime:
+                return True
+
+        for ra in self.repeatingavailability_set.all():
+            weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            print(ra.repeating_days)
+            if start_datetime.weekday() == end_datetime.weekday() and weekdays[start_datetime.weekday()] in ra.repeating_days:
+                if start_datetime.time() > ra.start_time and end_datetime.time() < ra.end_time:
+                    return True
+        return False
+
     def unreserved_spaces(self, start_datetime, end_datetime) -> int:
         num = self.available_spaces
+
+        if not self.is_within_any_availability(start_datetime, end_datetime):
+            return 0
 
         for fa in self.fixedavailability_set.all():
             if fa.is_reserved(start_datetime, end_datetime):

@@ -8,6 +8,7 @@ from django.conf import settings
 import json
 import pytz
 import dateutil.parser
+from math import acos, sin, cos
 
 from .models import ParkingSpace
 
@@ -20,6 +21,7 @@ def get_available_parking_spaces(request):
     start_datetime_iso = request.GET.get('start')
     end_datetime_iso = request.GET.get('end')
 
+
     pst = pytz.timezone('US/Pacific')
     # TODO: MAKE TIMEZONE WORK EVERYWHERE!!!
 
@@ -27,6 +29,7 @@ def get_available_parking_spaces(request):
     end_datetime = pst.localize(dateutil.parser.parse(end_datetime_iso))
 
     # TODO: fix accuracy of radius search
+    # TODO: fix bug where searching for exact radius results in acos out of range error
     locations_within_radius = ParkingSpace.objects.raw(
         'SELECT * FROM parking_parkingspace space '
         'WHERE ('
@@ -41,6 +44,22 @@ def get_available_parking_spaces(request):
             'input_radius': radius,
         }
     )
+
+    # print("**********************")
+    # for space in locations_within_radius:
+    #     a = sin(float(space.latitude) * 0.0175) * sin(34.063324 * 0.0175)
+    #     b = cos(float(space.latitude) * 0.0175) * cos(34.063324 * 0.0175)
+    #     c = cos((-118.392217 * 0.0175) - (float(space.longitude) * 0.0175))
+    #
+    #     print(a)
+    #     # print(
+    #     #     acos(
+    #     #         sin(float(space.latitude) * 0.0175) * sin(34.063324 * 0.0175)
+    #     #         +
+    #     #         cos(float(space.latitude) * 0.0175) * cos(34.063324 * 0.0175) * cos((-118.392217 * 0.0175) - (float(space.longitude) * 0.0175))
+    #     #     ) * 3959
+    #     # )
+    # print("**********************")
 
     # TODO: check 'available_spaces' field against reservations to get availability
 
