@@ -29,14 +29,13 @@ def get_available_parking_spaces(request):
     end_datetime = pst.localize(dateutil.parser.parse(end_datetime_iso))
 
     # TODO: fix accuracy of radius search
-    # TODO: fix bug where searching for exact radius results in acos out of range error
     locations_within_radius = ParkingSpace.objects.raw(
         'SELECT * FROM parking_parkingspace space '
         'WHERE ('
-        '           acos(sin(space.latitude * 0.0175) * sin(%(input_lat)s * 0.0175) '
+        '           acos(1 - abs((sin(space.latitude * 0.0175) * sin(%(input_lat)s * 0.0175) '
         '               + cos(space.latitude * 0.0175) * cos(%(input_lat)s * 0.0175) * '
         '                 cos((%(input_long)s * 0.0175) - (space.longitude * 0.0175)) '
-        '              ) * 3959 <= %(input_radius)s'
+        '              ) - 1)) * 3959 <= %(input_radius)s'
         '      )',
         {
             'input_lat': latitude,
