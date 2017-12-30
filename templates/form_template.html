@@ -1,0 +1,22 @@
+{% load static %}
+{% load form_template_tags %}
+
+<link rel="stylesheet" href="{% static 'css/form.css' %}">
+
+{% for field in form %}
+  <div class="form-group">
+    {% if field.errors %}
+      <span class="text-danger small">{{ field.errors }}</span>
+    {% endif %}
+    <label>{{ field.label }}</label>
+    {% if not field|is_checkbox %}
+      <div class="input-field">
+        {{ field }}
+      </div>
+    {% else %}
+      <div class="input-field checkbox-field">
+        {{ field }}
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}

@@ -21,7 +21,6 @@ def get_available_parking_spaces(request):
     start_datetime_iso = request.GET.get('start')
     end_datetime_iso = request.GET.get('end')
 
-
     pst = pytz.timezone('US/Pacific')
     # TODO: MAKE TIMEZONE WORK EVERYWHERE!!!
 
@@ -44,24 +43,6 @@ def get_available_parking_spaces(request):
         }
     )
 
-    # print("**********************")
-    # for space in locations_within_radius:
-    #     a = sin(float(space.latitude) * 0.0175) * sin(34.063324 * 0.0175)
-    #     b = cos(float(space.latitude) * 0.0175) * cos(34.063324 * 0.0175)
-    #     c = cos((-118.392217 * 0.0175) - (float(space.longitude) * 0.0175))
-    #
-    #     print(a)
-    #     # print(
-    #     #     acos(
-    #     #         sin(float(space.latitude) * 0.0175) * sin(34.063324 * 0.0175)
-    #     #         +
-    #     #         cos(float(space.latitude) * 0.0175) * cos(34.063324 * 0.0175) * cos((-118.392217 * 0.0175) - (float(space.longitude) * 0.0175))
-    #     #     ) * 3959
-    #     # )
-    # print("**********************")
-
-    # TODO: check 'available_spaces' field against reservations to get availability
-
     available_locations = []
     for location in locations_within_radius:
         unreserved_spaces = location.unreserved_spaces(start_datetime, end_datetime)
@@ -74,3 +55,8 @@ def get_available_parking_spaces(request):
             available_locations.append(location_dict)
 
     return HttpResponse(json.dumps(available_locations), content_type='application/json')
+
+
+@require_http_methods(["POST"])
+def make_reservation(request):
+    pass
