@@ -1,3 +1,7 @@
 body {
-    background-color: lightblue;
+    background-color: white;
+}
+
+.nav-link#login {
+    margin-right: 10px;
 }

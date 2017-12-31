@@ -136,3 +136,5 @@ STATICFILES_DIRS = [
 # Set custom User model
 
 AUTH_USER_MODEL = 'accounts.User'
+
+LOGIN_URL = '/login/'

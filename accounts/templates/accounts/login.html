@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% if error_msg %}
+        <div class="alert alert-danger" role="alert">
+            {{ error_msg }}
+        </div>
+    {% endif %}
+    <div class="form accounts">
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'form_template.html' %}
+            <div class="form-group">
+                <button type="submit" class="btn btn-outline-primary">Log in</button>
+            </div>
+            <span>Don't have an account? </span><a href="{% url 'register' %}">Register</a>
+        </form>
+    </div>
+{% endblock %}
