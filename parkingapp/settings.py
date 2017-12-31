@@ -29,7 +29,7 @@ SECRET_KEY = '1(c^2!r(1y+0_z5&4*r!4e3gm&sc5=3irkbi715!0j@==a%$i@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

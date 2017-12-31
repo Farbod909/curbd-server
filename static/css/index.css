@@ -1,0 +1,34 @@
+#map {
+    height: calc(100vh - 56px);
+    width: 100%;
+}
+
+#user_action_box {
+    position: absolute;
+    padding: 15px;
+    top: 100px;
+    right: 100px;
+    background: white;
+    box-shadow: 2px 2px 15px rgba(0,0,0,0.2);
+}
+
+#user_action_box input {
+    box-shadow: none;
+}
+
+#user_action_box > .btn-group {
+    width: 100%;
+}
+
+#user_action_box > .btn-group > .btn {
+    width: 50%;
+}
+
+#user_action_box > .btn-group > .btn-outline-primary.active {
+    color: white;
+    box-shadow: none;
+}
+
+#action_btn {
+    width: 80px;
+}

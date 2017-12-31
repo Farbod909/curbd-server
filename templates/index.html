@@ -1,6 +1,67 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block css_imports %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
 {% block content %}
-    Welcome home
+    <div id="map"></div>
+    <div id="user_action_box">
+        <div class="btn-group mb-2" role="group">
+          <button type="button" class="btn btn-outline-primary active" id="search">Search parking</button>
+          <button type="button" class="btn btn-outline-primary" id="host">Host parking</button>
+        </div>
+        <div class="input-group mb-1">
+          <input type="text" class="form-control" placeholder="Enter address" id="parking_address">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="action_btn">Search</button>
+          </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js_imports %}
+<script>
+  function initMap() {
+    var uluru = {lat: 34.025126, lng: -118.4815078};
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 14,
+      center: uluru
+    });
+    var marker = new google.maps.Marker({
+      position: uluru,
+      map: map
+    });
+    var marker2 = new google.maps.Marker({
+      position: {lat: 34.035126, lng: -118.4915078},
+      map: map
+    });
+  }
+</script>
+<script>
+    $(document).ready(function(){
+        $(".btn-group > .btn").click(function(){
+            $(".btn-group > .btn").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".btn-group > .btn#host").click(function(){
+            $("#action_btn").html("Add")
+        });
+        $(".btn-group > .btn#search").click(function(){
+            $("#action_btn").html("Search")
+        });
+
+        var input = document.getElementById('parking_address');
+        var options = {
+            types: ['address']
+        };
+
+        autocomplete = new google.maps.places.Autocomplete(input, options);
+    });
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsAH14rFuzdlhxLsotj8wKDjnQ-Gcx-bQ&libraries=places&callback=initMap">
+</script>
 {% endblock %}
