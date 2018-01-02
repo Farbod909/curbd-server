@@ -7,7 +7,7 @@
 
 {% block content %}
     <div id="map"></div>
-    <div id="user_action_box">
+    <div id="user_action_box" class="bg-light">
         <div class="btn-group mb-2" role="group">
           <button type="button" class="btn btn-outline-primary active" id="search">Search parking</button>
           <button type="button" class="btn btn-outline-primary" id="host">Host parking</button>
@@ -60,23 +60,23 @@
         };
 
         autocomplete = new google.maps.places.Autocomplete(input, options);
-
         autocomplete.addListener('place_changed', placeChanged);
 
         function placeChanged() {
+            var address_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + $(input).val().split(' ').join('+')
+            var lat;
+            var long;
+            $.get(address_url, function(response) {
+                if (response.status == "OK") {
+                    lat = response.results[0]["geometry"]["location"]["lat"]
+                    long = response.results[0]["geometry"]["location"]["lng"]
+                }
+            })
             if ($("#action_btn").hasClass("search")) {
-                // search button clicked
+                // search parking
             }
             if ($("#action_btn").hasClass("add")) {
-                var address_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + $(input).val().split(' ').join('+')
-                $.get(address_url, function(response) {
-                    if (response.status == "OK") {
-                        var lat = response.results[0]["geometry"]["location"]["lat"]
-                        var long = response.results[0]["geometry"]["location"]["lng"]
-                        console.log(lat)
-                        console.log(long)
-                    }
-                })
+                // host parking
             }
         }
 

@@ -14,6 +14,7 @@
 
 #user_action_box input {
     box-shadow: none;
+    width: 280px;
 }
 
 #user_action_box > .btn-group {
