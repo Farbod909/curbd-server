@@ -15,7 +15,7 @@
         <div class="input-group mb-1">
           <input type="text" class="form-control" placeholder="Enter address" id="parking_address">
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" id="action_btn">Search</button>
+            <button class="btn btn-outline-secondary search" type="button" id="action_btn">Search</button>
           </div>
         </div>
     </div>
@@ -42,15 +42,16 @@
 </script>
 <script>
     $(document).ready(function(){
+
         $(".btn-group > .btn").click(function(){
             $(".btn-group > .btn").removeClass("active");
             $(this).addClass("active");
         });
         $(".btn-group > .btn#host").click(function(){
-            $("#action_btn").html("Add")
+            $("#action_btn").html("Add").removeClass("search").addClass("add")
         });
         $(".btn-group > .btn#search").click(function(){
-            $("#action_btn").html("Search")
+            $("#action_btn").html("Search").removeClass("add").addClass("search")
         });
 
         var input = document.getElementById('parking_address');
@@ -59,6 +60,29 @@
         };
 
         autocomplete = new google.maps.places.Autocomplete(input, options);
+
+        autocomplete.addListener('place_changed', placeChanged);
+
+        function placeChanged() {
+            if ($("#action_btn").hasClass("search")) {
+                // search button clicked
+            }
+            if ($("#action_btn").hasClass("add")) {
+                var address_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + $(input).val().split(' ').join('+')
+                $.get(address_url, function(response) {
+                    if (response.status == "OK") {
+                        var lat = response.results[0]["geometry"]["location"]["lat"]
+                        var long = response.results[0]["geometry"]["location"]["lng"]
+                        console.log(lat)
+                        console.log(long)
+                    }
+                })
+            }
+        }
+
+        $("#action_btn").on("click", function() {
+            placeChanged()
+        });
     });
 </script>
 <script async defer
