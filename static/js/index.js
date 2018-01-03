@@ -123,11 +123,9 @@ $(document).ready(function(){
 
                     flatpickr(".parking_datetime_input", fp_config);
 
-
-
                 }
                 if ($("#action_btn").hasClass("add")) {
-
+                    window.location = addHostURL + "?lat=" + lat + "&long=" + long + "&sa=" + short_address
                 }
             } else {
                 alert("Please enter a valid address")
@@ -135,9 +133,5 @@ $(document).ready(function(){
             }
         })
 
-    }
-
-    function getPosition(string, subString, index) {
-        return string.split(subString, index).join(subString).length;
     }
 });

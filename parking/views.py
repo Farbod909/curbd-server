@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.decorators.http import require_http_methods, require_safe
+from django.views.decorators.http import require_POST, require_safe
 from django.core import serializers
 from django.http import JsonResponse
 from django.conf import settings
@@ -57,6 +57,11 @@ def get_available_parking_spaces(request):
     return HttpResponse(json.dumps(available_locations), content_type='application/json')
 
 
-@require_http_methods(["POST"])
+@require_POST
 def make_reservation(request):
     pass
+
+
+@require_safe
+def add_host_view(request):
+    return render(request, 'parking/add_host.html')

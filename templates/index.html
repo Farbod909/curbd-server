@@ -24,9 +24,12 @@
 {% endblock %}
 
 {% block js_imports %}
+<script>
+    var addHostURL = "{% url 'add_host' %}"
+</script>
 <script src="{% static 'js/index.js' %}"></script>
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsAH14rFuzdlhxLsotj8wKDjnQ-Gcx-bQ&libraries=places&callback=initMap">
+    src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDsAH14rFuzdlhxLsotj8wKDjnQ-Gcx-bQ&libraries=places&callback=initMap">
 </script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 {% endblock %}
