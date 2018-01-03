@@ -25,6 +25,10 @@
     width: 50%;
 }
 
+#user_action_box span.input-group-text {
+    width: 63px;
+}
+
 #user_action_box > .btn-group > .btn-outline-primary.active {
     color: white;
     box-shadow: none;

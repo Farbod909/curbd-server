@@ -3,6 +3,7 @@
 
 {% block css_imports %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
 {% block content %}
@@ -43,14 +44,14 @@
 <script>
     $(document).ready(function(){
 
-        $(".btn-group > .btn").click(function(){
+        $(document).on("click", ".btn-group > .btn", function() {
             $(".btn-group > .btn").removeClass("active");
             $(this).addClass("active");
         });
-        $(".btn-group > .btn#host").click(function(){
+        $(document).on("click", ".btn-group > .btn#host", function(){
             $("#action_btn").html("Add").removeClass("search").addClass("add")
         });
-        $(".btn-group > .btn#search").click(function(){
+        $(document).on("click", ".btn-group > .btn#search", function(){
             $("#action_btn").html("Search").removeClass("add").addClass("search")
         });
 
@@ -73,19 +74,83 @@
                 }
             })
             if ($("#action_btn").hasClass("search")) {
-                // search parking
+
+                $("#user_action_box").children().each(function() {
+                    $(this).remove()
+                })
+
+                var newdiv = `
+                <div class="input-group mb-1">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">From</span>
+                  </div>
+                  <input class="parking_datetime_input" type="text" class="form-control" placeholder="Select...">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Until</span>
+                  </div>
+                  <input class="parking_datetime_input" type="text" class="form-control" placeholder="Select...">
+                </div>
+                <div class="btn-group mb-0" role="group">
+                  <button type="button" class="btn btn-outline-primary" id="cancel_search">Cancel</button>
+                  <button type="button" class="btn btn-outline-primary" id="perform_search">Search</button>
+                </div>
+                `
+
+                $("#user_action_box").html(newdiv)
+
+                flatpickr(".parking_datetime_input", fp_config);
+
             }
             if ($("#action_btn").hasClass("add")) {
                 // host parking
             }
         }
 
-        $("#action_btn").on("click", function() {
+        $(document).on("click", "#action_btn", function() {
             placeChanged()
         });
+
+        $(document).on("click", "#cancel_search", function() {
+            // delete elements in #user_action_box and revert to original state
+            $("#user_action_box").children().each(function() {
+                $(this).remove()
+            })
+
+            var olddiv = `
+                <div class="btn-group mb-2" role="group">
+                  <button type="button" class="btn btn-outline-primary active" id="search">Search parking</button>
+                  <button type="button" class="btn btn-outline-primary" id="host">Host parking</button>
+                </div>
+                <div class="input-group mb-1">
+                  <input type="text" class="form-control" placeholder="Enter address" id="parking_address">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary search" type="button" id="action_btn">Search</button>
+                  </div>
+                </div>
+            `
+            $("#user_action_box").html(olddiv)
+            var input = document.getElementById('parking_address');
+
+            autocomplete = new google.maps.places.Autocomplete(input, options);
+            autocomplete.addListener('place_changed', placeChanged);
+        })
+
+        $(document).on("click", "#perform_search", function() {
+            // perform search
+        })
+
+        fp_config = {
+            enableTime: true,
+            altInput: true,
+            minDate: "today"
+        }
+
     });
 </script>
 <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsAH14rFuzdlhxLsotj8wKDjnQ-Gcx-bQ&libraries=places&callback=initMap">
 </script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 {% endblock %}
