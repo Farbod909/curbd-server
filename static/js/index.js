@@ -24,8 +24,8 @@ $(document).ready(function(){
 
     var user_action_box_original = `
         <div class="btn-group mb-2" role="group">
-          <button type="button" class="btn btn-outline-primary active" id="search">Search parking</button>
-          <button type="button" class="btn btn-outline-primary" id="host">Host parking</button>
+          <button type="button" class="btn btn-outline-primary mode active" id="search">Search parking</button>
+          <button type="button" class="btn btn-outline-primary mode" id="host">Host parking</button>
         </div>
         <div class="input-group mb-1">
           <input type="text" class="form-control" placeholder="Enter address" id="parking_address">
@@ -59,14 +59,14 @@ $(document).ready(function(){
 
     // EVENT LISTENERS
 
-    $(document).on("click", ".btn-group > .btn", function() {
+    $(document).on("click", ".btn-group > .mode", function() {
         $(".btn-group > .btn").removeClass("active");
         $(this).addClass("active");
     });
-    $(document).on("click", ".btn-group > .btn#host", function(){
+    $(document).on("click", ".btn-group > .mode#host", function(){
         $("#action_btn").html("Add").removeClass("search").addClass("add")
     });
-    $(document).on("click", ".btn-group > .btn#search", function(){
+    $(document).on("click", ".btn-group > .mode#search", function(){
         $("#action_btn").html("Search").removeClass("add").addClass("search")
     });
 
@@ -82,6 +82,10 @@ $(document).ready(function(){
         // perform search
     })
 
+    $(document).on("click", "#action_btn", function() {
+        addressSelected()
+    })
+
     // FUNCTION DEFINITIONS
 
     function setupAutocomplete() {
@@ -94,6 +98,10 @@ $(document).ready(function(){
     }
 
     function addressSelected() {
+        // make sure input isn't empty first
+        if ($("#parking_address").val() == "") {
+            return
+        }
         var action_btn_original_text = $("#action_btn").html();
         $("#action_btn").html("<i class='fa fa-circle-o-notch fa-spin'></i>")
         var address_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + $("#parking_address").val().split(' ').join('+')
