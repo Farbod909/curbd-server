@@ -37,3 +37,13 @@
 #action_btn {
     width: 80px;
 }
+
+.flatpickr-confirm {
+    cursor: pointer;
+    padding: 7px;
+    border-top: 1px solid #e6e6e6;
+}
+
+.flatpickr-confirm:hover {
+    background-color: #e6e6e6;
+}

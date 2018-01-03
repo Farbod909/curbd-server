@@ -19,7 +19,11 @@ $(document).ready(function(){
     fp_config = {
         enableTime: true,
         altInput: true,
-        minDate: "today"
+        minDate: "today",
+        plugins: [new confirmDatePlugin({
+            confirmIcon: "<i class='fa fa-check'></i>",
+            confirmText: "Done ",
+        })]
     }
 
     var user_action_box_original = `
