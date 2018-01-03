@@ -4,6 +4,7 @@
 {% block css_imports %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 {% endblock %}
 
 {% block content %}
@@ -20,135 +21,10 @@
           </div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block js_imports %}
-<script>
-  function initMap() {
-    var uluru = {lat: 34.025126, lng: -118.4815078};
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 14,
-      center: uluru
-    });
-    var marker = new google.maps.Marker({
-      position: uluru,
-      map: map
-    });
-    var marker2 = new google.maps.Marker({
-      position: {lat: 34.035126, lng: -118.4915078},
-      map: map
-    });
-  }
-</script>
-<script>
-    $(document).ready(function(){
-
-        $(document).on("click", ".btn-group > .btn", function() {
-            $(".btn-group > .btn").removeClass("active");
-            $(this).addClass("active");
-        });
-        $(document).on("click", ".btn-group > .btn#host", function(){
-            $("#action_btn").html("Add").removeClass("search").addClass("add")
-        });
-        $(document).on("click", ".btn-group > .btn#search", function(){
-            $("#action_btn").html("Search").removeClass("add").addClass("search")
-        });
-
-        var input = document.getElementById('parking_address');
-        var options = {
-            types: ['address']
-        };
-
-        autocomplete = new google.maps.places.Autocomplete(input, options);
-        autocomplete.addListener('place_changed', placeChanged);
-
-        function placeChanged() {
-            var address_url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + $(input).val().split(' ').join('+')
-            var lat;
-            var long;
-            $.get(address_url, function(response) {
-                if (response.status == "OK") {
-                    lat = response.results[0]["geometry"]["location"]["lat"]
-                    long = response.results[0]["geometry"]["location"]["lng"]
-                }
-            })
-            if ($("#action_btn").hasClass("search")) {
-
-                $("#user_action_box").children().each(function() {
-                    $(this).remove()
-                })
-
-                var newdiv = `
-                <div class="input-group mb-1">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">From</span>
-                  </div>
-                  <input class="parking_datetime_input" type="text" class="form-control" placeholder="Select...">
-                </div>
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">Until</span>
-                  </div>
-                  <input class="parking_datetime_input" type="text" class="form-control" placeholder="Select...">
-                </div>
-                <div class="btn-group mb-0" role="group">
-                  <button type="button" class="btn btn-outline-primary" id="cancel_search">Cancel</button>
-                  <button type="button" class="btn btn-outline-primary" id="perform_search">Search</button>
-                </div>
-                `
-
-                $("#user_action_box").html(newdiv)
-
-                flatpickr(".parking_datetime_input", fp_config);
-
-            }
-            if ($("#action_btn").hasClass("add")) {
-                // host parking
-            }
-        }
-
-        $(document).on("click", "#action_btn", function() {
-            placeChanged()
-        });
-
-        $(document).on("click", "#cancel_search", function() {
-            // delete elements in #user_action_box and revert to original state
-            $("#user_action_box").children().each(function() {
-                $(this).remove()
-            })
-
-            var olddiv = `
-                <div class="btn-group mb-2" role="group">
-                  <button type="button" class="btn btn-outline-primary active" id="search">Search parking</button>
-                  <button type="button" class="btn btn-outline-primary" id="host">Host parking</button>
-                </div>
-                <div class="input-group mb-1">
-                  <input type="text" class="form-control" placeholder="Enter address" id="parking_address">
-                  <div class="input-group-append">
-                    <button class="btn btn-outline-secondary search" type="button" id="action_btn">Search</button>
-                  </div>
-                </div>
-            `
-            $("#user_action_box").html(olddiv)
-            var input = document.getElementById('parking_address');
-
-            autocomplete = new google.maps.places.Autocomplete(input, options);
-            autocomplete.addListener('place_changed', placeChanged);
-        })
-
-        $(document).on("click", "#perform_search", function() {
-            // perform search
-        })
-
-        fp_config = {
-            enableTime: true,
-            altInput: true,
-            minDate: "today"
-        }
-
-    });
-</script>
+<script src="{% static 'js/index.js' %}"></script>
 <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsAH14rFuzdlhxLsotj8wKDjnQ-Gcx-bQ&libraries=places&callback=initMap">
 </script>
