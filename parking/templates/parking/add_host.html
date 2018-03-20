@@ -1,8 +1,106 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block css_imports %}
+    <link rel="stylesheet" href="{% static 'css/form.css' %}">
+{% endblock %}
+
 {% block content %}
-Add a host
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-auto">
+            <div class="form">
+                <div class="pseudo-form">
+                    <h4 class="mb-4">General information</h4>
+                    <div class="form-group">
+                        <label>Maximum vehicle size: </label>
+                            <select required>
+                                <option value="1">Motorcycle</option>
+                                <option value="2">Compact</option>
+                                <option value="3">Mid-sized</option>
+                                <option value="4">Large</option>
+                                <option value="5">Oversized</option>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Features</label>
+                        <div class="input-field">
+                            <ul>
+                                <li>
+                                    <label for="id_features_0">
+                                        <input type="checkbox" name="features" value="EV Charging" id="id_features_0"> EV Charging
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="id_features_1">
+                                        <input type="checkbox" name="features" value="Lit" id="id_features_1"> Lit
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="id_features_2">
+                                        <input type="checkbox" name="features" value="Covered" id="id_features_2"> Covered
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="id_features_3">
+                                        <input type="checkbox" name="features" value="Guarded" id="id_features_3"> Guarded
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <div class="input-field">
+                            <textarea></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-auto">
+            <div class="form">
+                <div class="pseudo-form">
+                    <h4 class="mb-4">Weekly availability</h4>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Sunday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Monday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Tuesday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Wednesday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Thursday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Friday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Saturday</label><span> - 9:00 AM -> 5:00 PM - </span><a href="#">Edit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-auto">
+            <div class="form">
+                <div class="pseudo-form">
+                    <h4 class="mb-4">Fixed availability</h4>
+                    <div class="form-group">
+                        <button class="btn btn-outline-primary">Add a time</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div class="form-group">-->
+            <!--<button type="submit" class="btn btn-outline-primary">Yo Yo</button>-->
+        <!--</div>-->
+    </div>
+</div>
 {% endblock %}
 
 {% block js_imports %}
