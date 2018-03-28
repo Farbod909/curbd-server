@@ -1,13 +1,11 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth import logout, get_user_model
+from django.contrib.auth import logout
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from rest_framework import viewsets
 
 from .forms import UserLoginForm, UserRegistrationForm
 from .models import Host, Customer
-from .serializers import UserSerializer
 
 
 def logout_view(request):
@@ -71,11 +69,3 @@ class UserLoginView(View):
                 return redirect('home')
             else:
                 return render(request, self.template_name, {'form': form, 'error_msg': 'Invalid login attempt.'})
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = get_user_model().objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
