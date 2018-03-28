@@ -1,9 +1,10 @@
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from django.contrib.auth import authenticate, login
-from django.http import HttpResponse
+
 from .forms import UserLoginForm, UserRegistrationForm
-from django.contrib.auth import logout
 from .models import Host, Customer
 
 
@@ -68,5 +69,3 @@ class UserLoginView(View):
                 return redirect('home')
             else:
                 return render(request, self.template_name, {'form': form, 'error_msg': 'Invalid login attempt.'})
-
-
