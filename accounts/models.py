@@ -1,23 +1,22 @@
-from django.db import models
-from django.core.mail import send_mail
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
 from django.core.validators import MaxValueValidator
+from django.db import models
 
 from .managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-    email = models.EmailField(_('email address'), unique=True)
-    first_name = models.CharField(_('first name'), max_length=30, blank=False)
-    last_name = models.CharField(_('last name'), max_length=30, blank=False)
-    phone_number = models.CharField(_('phone number'), max_length=15, blank=False, unique=True)
-    date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
-    is_active = models.BooleanField(_('active'), default=True)
-    is_staff = models.BooleanField(_('staff'), default=False)
+    email = models.EmailField('email address', unique=True)
+    first_name = models.CharField('first name', max_length=30, blank=False)
+    last_name = models.CharField('last name', max_length=30, blank=False)
+    phone_number = models.CharField('phone number', max_length=15, blank=False, unique=True)
+    date_joined = models.DateTimeField('date joined', auto_now_add=True)
+    is_active = models.BooleanField('active', default=True)
+    is_staff = models.BooleanField('staff', default=False)
 
     objects = UserManager()
 
@@ -26,8 +25,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
 
     class Meta:
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
 
     def get_full_name(self):
         """
@@ -51,20 +50,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Customer(models.Model):
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     # TODO: add Customer specific data
 
     def __str__(self):
-        return "%s %s" % (self.user.first_name, self.user.last_name)
+        return "Customer: %s %s" % (self.user.first_name, self.user.last_name)
 
 
 class Host(models.Model):
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     # TODO: add Host specific data
 
     def __str__(self):
-        return "%s %s" % (self.user.first_name, self.user.last_name)
+        return "Host: %s %s" % (self.user.first_name, self.user.last_name)
 
 
 class Car(models.Model):
@@ -78,7 +77,7 @@ class Car(models.Model):
     license_plate = models.CharField(max_length=15, unique=True)
 
     def __str__(self):
-        return "%s: %s %s %s %s" % (
+        return "Car: %s - %s %s %s %s" % (
             self.license_plate, self.color, self.year, self.make, self.model)
 
 

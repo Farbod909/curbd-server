@@ -1,9 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST, require_safe
-from django.core import serializers
-from django.http import JsonResponse
-from django.conf import settings
 
 import json
 import pytz

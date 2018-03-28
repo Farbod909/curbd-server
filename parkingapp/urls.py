@@ -16,14 +16,15 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from . import views
-from accounts import views as account_views
+import accounts.views
 
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
-    url(r'^register/$', account_views.UserRegistrationView.as_view(), name='register'),
-    url(r'^login/$', account_views.UserLoginView.as_view(), name='login'),
-    url(r'^logout/$', account_views.logout_view, name='logout'),
+    url(r'^register/$', accounts.views.UserRegistrationView.as_view(), name='register'),
+    url(r'^login/$', accounts.views.UserLoginView.as_view(), name='login'),
+    url(r'^logout/$', accounts.views.logout_view, name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^parking/', include('parking.urls')),
+    url(r'^api-auth/', include('rest_framework.urls'), name='rest_framework'),
 ]
