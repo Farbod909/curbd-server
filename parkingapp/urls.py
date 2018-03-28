@@ -16,15 +16,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from . import views
-import accounts.views
 
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
-    url(r'^register/$', accounts.views.UserRegistrationView.as_view(), name='register'),
-    url(r'^login/$', accounts.views.UserLoginView.as_view(), name='login'),
-    url(r'^logout/$', accounts.views.logout_view, name='logout'),
     url(r'^admin/', admin.site.urls),
-    url(r'^parking/', include('parking.urls')),
+    url(r'^accounts/', include('accounts.urls')),
     url(r'^api-auth/', include('rest_framework.urls'), name='rest_framework'),
+    url(r'^parking/', include('parking.urls')),
 ]
