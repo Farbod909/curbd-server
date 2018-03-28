@@ -9,6 +9,7 @@ router.register(r'users', account_api_views.UserViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^auth/', include('rest_framework.urls'), name='rest_framework'),
 ]
 
 # urlpatterns = format_suffix_patterns(urlpatterns)
