@@ -9,5 +9,5 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('', views.api_root),
     path('auth/', include('rest_framework.urls'), name='rest_framework'),
-    path('users/', include('accounts.api_urls')),
+    path('accounts/', include('accounts.api_urls')),
 ]

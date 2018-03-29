@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from .models import Customer, Host
+
 
 class UserListSerializer(serializers.ModelSerializer):
     """
@@ -32,3 +34,14 @@ class HighPermissionUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         read_only_fields = ('last_login', 'is_superuser',)
 
+
+class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ('user',)
+
+
+class HostSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Host
+        fields = ('user',)

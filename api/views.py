@@ -9,4 +9,7 @@ from rest_framework.reverse import reverse
 def api_root(request, format=None):
     return Response({
         'users': reverse('user-list', request=request, format=format),
+        'customers': reverse('customer-list', request=request, format=format),
+        'hosts': reverse('host-list', request=request, format=format),
+
     })

@@ -2,7 +2,10 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics
 
 from .api_permissions import IsAdminOrIsUserOrReadOnly
-from .serializers import  UserSerializer, HighPermissionUserSerializer, UserListSerializer
+from .models import Customer, Host
+from .serializers import (
+    UserSerializer, HighPermissionUserSerializer, UserListSerializer,
+    CustomerSerializer, HostSerializer)
 
 
 class UserList(generics.ListAPIView):
@@ -19,4 +22,14 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
         if self.request.user.is_superuser:
             return HighPermissionUserSerializer
         return UserSerializer
+
+
+class CustomerList(generics.ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+
+
+class HostList(generics.ListCreateAPIView):
+    queryset = Host.objects.all()
+    serializer_class = HostSerializer
 
