@@ -33,16 +33,3 @@ class IsStaffOrIsUserOrReadOnly(permissions.BasePermission):
             return True
 
         return request.user.is_staff or obj == request.user
-
-
-class ReadOnlyIsStaffOrIsCustomerOrHost(permissions.BasePermission):
-    """
-    Custom permission to only allow admins or the customer/host themselves to edit.
-    Also allows staff to read.
-    """
-    def has_object_permission(self, request, view, obj):
-
-        if request.method in permissions.SAFE_METHODS:
-            return request.user.is_staff or obj.user == request.user
-
-        return False

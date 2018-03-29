@@ -2,10 +2,10 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics
 from rest_framework.response import Response
 
+from api.permissions import ReadOnly
 
-from .api_permissions import (
-    IsStaff, IsAdminOrIsCarOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly,
-    ReadOnlyIsStaffOrIsCustomerOrHost)
+
+from .api_permissions import IsStaff, IsAdminOrIsCarOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
 from .models import Customer, Host, Car
 from .serializers import (
     UserSerializer, HighPermissionUserSerializer, UserListSerializer,
@@ -46,7 +46,7 @@ class CustomerList(generics.ListAPIView):
 class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = (ReadOnlyIsStaffOrIsCustomerOrHost,)
+    permission_classes = (ReadOnly,)
 
 
 class HostList(generics.ListCreateAPIView):
@@ -58,7 +58,7 @@ class HostList(generics.ListCreateAPIView):
 class HostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
-    permission_classes = (ReadOnlyIsStaffOrIsCustomerOrHost,)
+    permission_classes = (ReadOnly,)
 
 
 class CarList(generics.ListAPIView):
