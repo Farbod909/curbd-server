@@ -43,13 +43,13 @@ class HighPermissionUserSerializer(UserSerializer):
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Customer
-        fields = ('user',)
+        fields = '__all__'
 
 
 class HostSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Host
-        fields = ('user',)
+        fields = '__all__'
 
 
 class CarSerializer(serializers.HyperlinkedModelSerializer):
@@ -60,4 +60,4 @@ class CarSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Car
-        exclude = ('customer',)
+        fields = '__all__'

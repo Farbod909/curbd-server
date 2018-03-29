@@ -3,7 +3,9 @@ from rest_framework import generics
 from rest_framework.response import Response
 
 
-from .api_permissions import IsStaff, IsAdminOrIsOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
+from .api_permissions import (
+    IsStaff, IsAdminOrIsCarOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly,
+    ReadOnlyIsStaffOrIsCustomerOrHost)
 from .models import Customer, Host, Car
 from .serializers import (
     UserSerializer, HighPermissionUserSerializer, UserListSerializer,
@@ -41,10 +43,22 @@ class CustomerList(generics.ListAPIView):
     permission_classes = (IsStaff,)
 
 
+class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = (ReadOnlyIsStaffOrIsCustomerOrHost,)
+
+
 class HostList(generics.ListCreateAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
     permission_classes = (IsStaff,)
+
+
+class HostDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Host.objects.all()
+    serializer_class = HostSerializer
+    permission_classes = (ReadOnlyIsStaffOrIsCustomerOrHost,)
 
 
 class CarList(generics.ListAPIView):
@@ -56,6 +70,6 @@ class CarList(generics.ListAPIView):
 class CarDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-    permission_classes = (IsAdminOrIsOwnerOrIsStaffReadOnly,)
+    permission_classes = (IsAdminOrIsCarOwnerOrIsStaffReadOnly,)
     lookup_field = 'license_plate'
 
