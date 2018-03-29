@@ -11,5 +11,6 @@ def api_root(request, format=None):
         'users': reverse('user-list', request=request, format=format),
         'customers': reverse('customer-list', request=request, format=format),
         'hosts': reverse('host-list', request=request, format=format),
+        'cars': reverse('car-list', request=request, format=format),
 
     })

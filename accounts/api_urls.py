@@ -11,5 +11,6 @@ urlpatterns = [
     # path('customers/<int:pk>', api_views.UserDetail.as_view(), name='customer-detail'),
     path('hosts/', api_views.HostList.as_view(), name='host-list'),
     # path('hosts/<int:pk>', api_views.UserDetail.as_view(), name='host-detail'),
-
+    path('cars/', api_views.CarList.as_view(), name='car-list'),
+    path('cars/<license_plate>', api_views.CarDetail.as_view(), name='car-detail'),
 ]

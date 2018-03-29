@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Customer, Host
+from .models import Customer, Host, Car
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -20,7 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
     Standard User Serializer that does not allow editing of sensitive
     attributes such as is_superuser, is_staff, password, etc.
     """
-    # is_host = serializers.HyperlinkedIdentityField(view_name='user-is_host', format='html')
     is_host = serializers.SerializerMethodField()
 
     class Meta:
@@ -51,3 +50,14 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Host
         fields = ('user',)
+
+
+class CarSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='car-detail',
+        lookup_field='license_plate'
+    )
+
+    class Meta:
+        model = Car
+        exclude = ('customer',)
