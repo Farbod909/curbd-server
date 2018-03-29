@@ -20,12 +20,16 @@ class UserSerializer(serializers.ModelSerializer):
     Standard User Serializer that does not allow editing of sensitive
     attributes such as is_superuser, is_staff, password, etc.
     """
-    is_host = serializers.HyperlinkedIdentityField(view_name='user-is_host', format='html')
+    # is_host = serializers.HyperlinkedIdentityField(view_name='user-is_host', format='html')
+    is_host = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
         exclude = ('id', 'password', 'groups', 'user_permissions',)
         read_only_fields = ('last_login', 'is_superuser', 'is_staff',)
+
+    def get_is_host(self, obj):
+        return obj.is_host()
 
 
 class HighPermissionUserSerializer(UserSerializer):
