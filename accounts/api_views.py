@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics
+from django.shortcuts import redirect, reverse
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from api.permissions import ReadOnly
@@ -29,12 +30,26 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
         return UserSerializer
 
 
-class UserIsHost(generics.GenericAPIView):
+class UserHost(generics.GenericAPIView):
     queryset = get_user_model().objects.all()
 
     def get(self, request, *args, **kwargs):
         user = self.get_object()
-        return Response(user.is_host())
+        try:
+            return redirect(reverse('host-detail', args=[user.host.pk]))
+        except:  # user.host not found
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class UserCustomer(generics.GenericAPIView):
+    queryset = get_user_model().objects.all()
+
+    def get(self, request, *args, **kwargs):
+        user = self.get_object()
+        try:
+            return redirect(reverse('customer-detail', args=[user.customer.pk]))
+        except:  # user.customer not found
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class CustomerList(generics.ListAPIView):

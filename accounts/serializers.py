@@ -9,10 +9,12 @@ class UserListSerializer(serializers.ModelSerializer):
     This Serializer class displays limited fields, therefore it is
     appropriate for listing User objects.
     """
+    host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
+    customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'url',)
+        fields = ('email', 'host', 'customer', 'url',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,7 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
     Standard User Serializer that does not allow editing of sensitive
     attributes such as is_superuser, is_staff, password, etc.
     """
-    is_host = serializers.SerializerMethodField()
+    # is_host = serializers.SerializerMethodField()
+    host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
+    customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
 
     class Meta:
         model = get_user_model()
