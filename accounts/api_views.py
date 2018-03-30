@@ -3,10 +3,10 @@ from django.shortcuts import redirect, reverse
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from api.permissions import ReadOnly
+from api.permissions import ReadOnly, IsStaff
 
 
-from .api_permissions import IsStaff, IsAdminOrIsCarOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
+from .api_permissions import IsAdminOrIsCarOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
 from .models import Customer, Host, Car
 from .serializers import (
     UserSerializer, HighPermissionUserSerializer, UserListSerializer,

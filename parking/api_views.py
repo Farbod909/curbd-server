@@ -1,5 +1,6 @@
 from rest_framework import generics
 
+from api.permissions import IsStaff
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
 
@@ -7,6 +8,7 @@ from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, Re
 class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
+    permission_classes = (IsStaff,)
 
 
 class ParkingSpaceDetail(generics.RetrieveUpdateDestroyAPIView):

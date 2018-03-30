@@ -14,14 +14,6 @@ class IsAdminOrIsCarOwnerOrIsStaffReadOnly(permissions.BasePermission):
         return request.user.is_superuser or obj.customer.user == request.user
 
 
-class IsStaff(permissions.BasePermission):
-    """
-    Custom permission to only allow staff to browse.
-    """
-    def has_permission(self, request, view):
-        return request.user.is_staff
-
-
 class IsStaffOrIsUserOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow admins or the user to edit said user.
