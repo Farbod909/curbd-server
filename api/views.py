@@ -13,5 +13,8 @@ def api_root(request, format=None):
         'hosts': reverse('host-list', request=request, format=format),
         'cars': reverse('car-list', request=request, format=format),
         'parkingspaces': reverse('parkingspace-list', request=request, format=format),
+        'fixedavailabilities': reverse('fixedavailability-list', request=request, format=format),
+        'repeatingavailabilities': reverse('repeatingavailability-list', request=request, format=format),
+        'reservations': reverse('reservation-list', request=request, format=format),
 
     })
