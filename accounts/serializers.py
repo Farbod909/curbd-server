@@ -51,6 +51,8 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class HostSerializer(serializers.HyperlinkedModelSerializer):
+    parkingspace_set = serializers.HyperlinkedRelatedField(many=True, view_name='parkingspace-detail', read_only=True)
+
     class Meta:
         model = Host
         fields = '__all__'
