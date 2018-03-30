@@ -51,7 +51,10 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class HostSerializer(serializers.HyperlinkedModelSerializer):
-    parkingspace_set = serializers.HyperlinkedRelatedField(many=True, view_name='parkingspace-detail', read_only=True)
+    parkingspace_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='parkingspace-detail',
+        read_only=True)
 
     class Meta:
         model = Host
@@ -61,8 +64,11 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
 class CarSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='car-detail',
-        lookup_field='license_plate'
-    )
+        lookup_field='license_plate')
+    reservation_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='reservation-detail',
+        read_only=True)
 
     class Meta:
         model = Car
