@@ -10,12 +10,22 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+    reservation_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='reservation-detail',
+        read_only=True)
+
     class Meta:
         model = FixedAvailability
         fields = '__all__'
 
 
 class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+    reservation_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='reservation-detail',
+        read_only=True)
+
     class Meta:
         model = RepeatingAvailability
         fields = '__all__'
