@@ -12,6 +12,10 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         view_name='repeatingavailability-detail',
         read_only=True)
+    reservations = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='reservation-detail',
+        read_only=True)
 
     class Meta:
         model = ParkingSpace
@@ -44,6 +48,9 @@ class ReservationSerializer(serializers.HyperlinkedModelSerializer):
     car = serializers.HyperlinkedRelatedField(
         view_name='car-detail',
         lookup_field='license_plate',
+        read_only=True)
+    parking_space = serializers.HyperlinkedRelatedField(
+        view_name='parkingspace-detail',
         read_only=True)
 
     class Meta:

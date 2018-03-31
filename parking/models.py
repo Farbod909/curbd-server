@@ -87,6 +87,11 @@ class ParkingSpace(models.Model):
 
     # TODO: parking space photos
 
+    def reservations(self):
+        return Reservation.objects.filter(
+            Q(fixed_availability__parking_space=self) or
+            Q(repeating_availability__parking_space=self))
+
     def is_within_any_availability(self, start_datetime, end_datetime):
         for fa in self.fixedavailability_set.all():
             if start_datetime > fa.start_datetime and end_datetime < fa.end_datetime:
@@ -339,6 +344,9 @@ class Reservation(models.Model):
         FixedAvailability, on_delete=models.PROTECT, blank=True, null=True)
     repeating_availability = models.ForeignKey(
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
+
+    def parking_space(self):
+        return ParkingSpace.objects.get(fixedavailability__reservation=self)
 
     def set_for_repeating_field(self):
         if self.for_repeating is None:

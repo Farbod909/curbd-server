@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import Customer, Host, Car
+from parking.models import Reservation
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -45,6 +46,16 @@ class HighPermissionUserSerializer(UserSerializer):
 
 
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+    car_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='car-detail',
+        read_only=True,
+        lookup_field='license_plate')
+    reservations = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='reservation-detail',
+        read_only=True)
+
     class Meta:
         model = Customer
         fields = '__all__'

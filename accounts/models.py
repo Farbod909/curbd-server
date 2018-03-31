@@ -61,6 +61,10 @@ class Customer(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     # TODO: add Customer specific data
 
+    def reservations(self):
+        from parking.models import Reservation
+        return Reservation.objects.filter(car__customer=self)
+
     def __str__(self):
         return "Customer: %s %s" % (self.user.first_name, self.user.last_name)
 
