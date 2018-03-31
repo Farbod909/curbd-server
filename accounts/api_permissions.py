@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class IsAdminOrIsCarOwnerOrIsStaffReadOnly(permissions.BasePermission):
+class IsAdminOrIsCarOwnerOrIfIsStaffReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow admins or the car owner to edit.
     Also allows staff to read.
