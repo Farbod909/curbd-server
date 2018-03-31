@@ -4,6 +4,15 @@ from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Rese
 
 
 class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
+    fixedavailability_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='fixedavailability-detail',
+        read_only=True)
+    repeatingavailability_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='repeatingavailability-detail',
+        read_only=True)
+
     class Meta:
         model = ParkingSpace
         fields = '__all__'
