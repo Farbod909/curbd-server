@@ -346,7 +346,9 @@ class Reservation(models.Model):
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
 
     def parking_space(self):
-        return ParkingSpace.objects.get(fixedavailability__reservation=self)
+        return ParkingSpace.objects.get(
+            Q(fixedavailability__reservation=self) or
+            Q(repeatingavailability__reservation=self))
 
     def set_for_repeating_field(self):
         if self.for_repeating is None:
