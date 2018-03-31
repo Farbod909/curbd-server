@@ -59,7 +59,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Customer(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    # TODO: add Customer specific data
 
     def reservations(self):
         from parking.models import Reservation
@@ -72,7 +71,6 @@ class Customer(models.Model):
 class Host(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    # TODO: add Host specific data
 
     def __str__(self):
         return "Host: %s %s" % (self.user.first_name, self.user.last_name)

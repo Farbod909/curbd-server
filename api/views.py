@@ -16,5 +16,4 @@ def api_root(request, format=None):
         'fixedavailabilities': reverse('fixedavailability-list', request=request, format=format),
         'repeatingavailabilities': reverse('repeatingavailability-list', request=request, format=format),
         'reservations': reverse('reservation-list', request=request, format=format),
-
     })
