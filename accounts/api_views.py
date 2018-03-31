@@ -3,7 +3,7 @@ from django.shortcuts import redirect, reverse
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from api.permissions import ReadOnly, IsStaff
+from api.general_permissions import ReadOnly, IsStaff
 
 
 from .api_permissions import IsAdminOrIsCarOwnerOrIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
