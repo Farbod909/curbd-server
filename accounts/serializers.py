@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import Customer, Host, Car
-from parking.models import Reservation
 
 
 class UserListSerializer(serializers.ModelSerializer):
