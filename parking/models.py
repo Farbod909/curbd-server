@@ -93,19 +93,34 @@ class ParkingSpace(models.Model):
             Q(repeating_availability__parking_space=self))
 
     def is_within_any_availability(self, start_datetime, end_datetime):
+        """
+        Determines whether or not a ParkingSpace instance has an availability
+        that starts before start_datetime and ends after end_datetime
+        :param start_datetime: The starting time of the potential reservation
+        :param end_datetime: The ending time of the potential reservation
+        :return: Boolean that determines if start and end datetimes are within
+        any availability
+        """
         for fa in self.fixedavailability_set.all():
-            if start_datetime > fa.start_datetime and end_datetime < fa.end_datetime:
+            if start_datetime >= fa.start_datetime and end_datetime <= fa.end_datetime:
                 return True
 
         for ra in self.repeatingavailability_set.all():
             weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
             print(ra.repeating_days)
             if start_datetime.weekday() == end_datetime.weekday() and weekdays[start_datetime.weekday()] in ra.repeating_days:
-                if start_datetime.time() > ra.start_time and end_datetime.time() < ra.end_time:
+                if start_datetime.time() >= ra.start_time and end_datetime.time() <= ra.end_time:
                     return True
         return False
 
     def unreserved_spaces(self, start_datetime, end_datetime) -> int:
+        """
+        Determines number of unreserved (vacant) spots this ParkingSpace
+        instance has in a given time range
+        :param start_datetime: The starting time of the range
+        :param end_datetime: The ending time of the range
+        :return: number of unreserved spots
+        """
         num = self.available_spaces
 
         if not self.is_within_any_availability(start_datetime, end_datetime):

@@ -5,6 +5,7 @@ from .api_permissions import (
     IsAdminOrIsParkingSpaceOwnerOrReadOnly, HostsCanCreateAndStaffCanRead,
     IsAdminOrIsOwnerOfParkingSpaceOfAvailabilityOrReadOnly,
     IsAdminOrIsReservationOwnerOrReadOnly,)
+from .api_filters import LocationAndTimeAvailableFilter
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
 
@@ -13,6 +14,7 @@ class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
     permission_classes = (HostsCanCreateAndStaffCanRead,)
+    filter_backends = (LocationAndTimeAvailableFilter,)
 
 
 class ParkingSpaceDetail(generics.RetrieveUpdateDestroyAPIView):
