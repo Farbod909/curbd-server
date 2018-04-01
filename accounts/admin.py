@@ -79,6 +79,7 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
+
 # Register your models here.
 admin.site.register(User, UserAdmin)
 admin.site.register(Host)

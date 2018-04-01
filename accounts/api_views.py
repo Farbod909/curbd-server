@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, reverse
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.response import Response
 
 from api.general_permissions import ReadOnly, IsStaff
@@ -17,6 +17,9 @@ class UserList(generics.ListAPIView):
     queryset = get_user_model().objects.all().order_by('-date_joined')
     serializer_class = UserListSerializer
     permission_classes = (IsStaff,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('email',)
+    ordering_fields = ('date_joined', 'first_name', 'last_name', 'email',)
 
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
