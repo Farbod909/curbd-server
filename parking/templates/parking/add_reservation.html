@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css_imports %}
+    <link rel="stylesheet" href="{% static 'css/form.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% include 'form_template.html' %}
+{% endblock %}
+
+{% block js_imports %}
+{% endblock %}

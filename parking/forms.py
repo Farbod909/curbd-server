@@ -1,6 +1,7 @@
 from django import forms
 
-from .models import ParkingSpace
+from accounts.models import Car
+from .models import ParkingSpace, Reservation
 
 
 class ParkingSpaceCreationForm(forms.Form):
@@ -11,6 +12,19 @@ class ParkingSpaceCreationForm(forms.Form):
     features = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,
         choices=ParkingSpace.FEATURES,
-        blank=True,
         help_text="A list of features e.g. EV charging, shade, etc.")
     description = forms.CharField(widget=forms.Textarea)
+
+
+class ReservationCreationForm(forms.ModelForm):
+    parking_space = forms.ModelChoiceField(queryset=ParkingSpace.objects.all())
+
+    class Meta:
+        model = Reservation
+        fields = ('car', 'start_datetime', 'end_datetime',)
+
+    def __init__(self, request, *args, **kwargs):
+        super(ReservationCreationForm, self).__init__(*args, **kwargs)
+
+        # limit the cars queryset to the currently logged-in user's car set
+        self.fields['car'].queryset = Car.objects.filter(customer__user=request.user)
