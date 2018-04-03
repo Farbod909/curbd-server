@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load render_bundle from webpack_loader %}
 
 {% block css_imports %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
@@ -9,19 +10,23 @@
 {% endblock %}
 
 {% block content %}
-    <div id="map"></div>
-    <div id="user_action_box" class="bg-light">
-        <div class="btn-group mb-2" role="group">
-          <button type="button" class="btn btn-outline-primary mode active" id="search">Search parking</button>
-          <button type="button" class="btn btn-outline-primary mode" id="host">Host parking</button>
-        </div>
-        <div class="input-group mb-1">
-          <input type="text" class="form-control" placeholder="Enter address" id="parking_address">
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary search" type="button" id="action_btn">Search</button>
-          </div>
-        </div>
+{#    <div id="map"></div>#}
+{#    <div id="user_action_box" class="bg-light">#}
+{#        <div class="btn-group mb-2" role="group">#}
+{#          <button type="button" class="btn btn-outline-primary mode active" id="search">Search parking</button>#}
+{#          <button type="button" class="btn btn-outline-primary mode" id="host">Host parking</button>#}
+{#        </div>#}
+{#        <div class="input-group mb-1">#}
+{#          <input type="text" class="form-control" placeholder="Enter address" id="parking_address">#}
+{#          <div class="input-group-append">#}
+{#            <button class="btn btn-outline-secondary search" type="button" id="action_btn">Search</button>#}
+{#          </div>#}
+{#        </div>#}
+{#    </div>#}
+    <div id="root">
+        This is where react will be mounted
     </div>
+    {% render_bundle 'main' %}
 {% endblock %}
 
 {% block js_imports %}
