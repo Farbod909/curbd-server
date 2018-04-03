@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from api.general_permissions import ReadOnly, IsStaff
 
 
-from .api_permissions import IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
+from .api_permissions import IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly
 from .models import Customer, Host, Car
 from .serializers import (
     UserSerializer, HighPermissionUserSerializer,
@@ -24,7 +24,7 @@ class UserList(generics.ListCreateAPIView):
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_user_model().objects.all()
-    permission_classes = (IsStaffOrIsUserOrReadOnly,)
+    permission_classes = (IsStaffOrIsTargetUserOrReadOnly,)
 
     def get_serializer_class(self):
         """ The fields we expose in the API depends on the user's superuser status """

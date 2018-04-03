@@ -14,7 +14,7 @@ class IsAdminOrIsCarOwnerOrIfIsStaffReadOnly(permissions.BasePermission):
         return request.user.is_superuser or obj.customer.user == request.user
 
 
-class IsStaffOrIsUserOrReadOnly(permissions.BasePermission):
+class IsStaffOrIsTargetUserOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow admins or the user to edit said user.
     """
