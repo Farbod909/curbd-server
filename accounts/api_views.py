@@ -9,13 +9,13 @@ from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsUserOrReadOnly
 from .models import Customer, Host, Car
 from .serializers import (
-    UserSerializer, HighPermissionUserSerializer, UserListSerializer,
+    UserSerializer, HighPermissionUserSerializer,
     CustomerSerializer, HostSerializer, CarSerializer)
 
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     queryset = get_user_model().objects.all().order_by('-date_joined')
-    serializer_class = UserListSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsStaff,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('email',)

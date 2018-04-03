@@ -4,31 +4,28 @@ from rest_framework import serializers
 from .models import Customer, Host, Car
 
 
-class UserListSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     """
-    This Serializer class displays limited fields, therefore it is
-    appropriate for listing User objects.
-    """
-    host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
-    customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
-
-    class Meta:
-        model = get_user_model()
-        fields = ('email', 'host', 'customer', 'url',)
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """
-    Standard User Serializer that does not allow editing of sensitive
-    attributes such as is_superuser, is_staff, password, etc.
+    Standard User Serializer that does not allow editing of certain
+    attributes such as is_superuser, is_staff, etc.
     """
     host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
     customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
+    is_host = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = get_user_model()
-        exclude = ('id', 'password', 'groups', 'user_permissions',)
+        exclude = ('groups', 'user_permissions',)
         read_only_fields = ('last_login', 'is_superuser', 'is_staff',)
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        is_host = validated_data.pop('is_host')
+        user = get_user_model().objects.create(**validated_data)
+        Customer.objects.create(user=user)
+        if is_host:
+            Host.objects.create(user=user)
+        return user
 
 
 class HighPermissionUserSerializer(UserSerializer):
