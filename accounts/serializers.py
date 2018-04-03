@@ -4,10 +4,10 @@ from rest_framework import serializers
 from .models import Customer, Host, Car
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserListSerializer(serializers.HyperlinkedModelSerializer):
     """
-    Standard User Serializer that does not allow editing of certain
-    attributes such as is_superuser, is_staff, etc.
+    Standard User Serializer for displaying a list of users via GET.
+    Allows creation of users via POST.
     """
     host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
     customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
@@ -21,11 +21,29 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         is_host = validated_data.pop('is_host')
+        password = validated_data.pop('password')
         user = get_user_model().objects.create(**validated_data)
+        user.set_password(password)
+        user.save()
         Customer.objects.create(user=user)
         if is_host:
             Host.objects.create(user=user)
         return user
+
+
+class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Standard User Serializer that allows viewing detail of a User instance.
+    Allows deletion and editing of user attributes via DELETE, PUT, and PATCH
+    """
+    host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
+    customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
+    is_host = serializers.BooleanField(write_only=True)
+
+    class Meta:
+        model = get_user_model()
+        exclude = ('password', 'groups', 'user_permissions',)
+        read_only_fields = ('last_login', 'is_superuser', 'is_staff',)
 
     def update(self, instance, validated_data):
         is_host = False
@@ -36,8 +54,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
-        if validated_data.get('password'):
-            instance.set_password(validated_data.get('password'))
+        instance.is_active = validated_data.get('is_active', instance.is_active)
 
         instance.save()
 
@@ -47,12 +64,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
-class HighPermissionUserSerializer(UserSerializer):
+class HighPermissionUserDetailSerializer(UserDetailSerializer):
     """
     This Serializer class allows editing of the is_staff attribute of User.
     """
 
-    class Meta(UserSerializer.Meta):
+    class Meta(UserDetailSerializer.Meta):
         read_only_fields = ('last_login', 'is_superuser',)
 
 

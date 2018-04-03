@@ -9,13 +9,13 @@ from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly
 from .models import Customer, Host, Car
 from .serializers import (
-    UserSerializer, HighPermissionUserSerializer,
+    UserDetailSerializer, HighPermissionUserDetailSerializer, UserListSerializer,
     CustomerSerializer, HostSerializer, CarSerializer)
 
 
 class UserList(generics.ListCreateAPIView):
     queryset = get_user_model().objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+    serializer_class = UserListSerializer
     permission_classes = (IsStaff,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('email',)
@@ -29,8 +29,8 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self):
         """ The fields we expose in the API depends on the user's superuser status """
         if self.request.user.is_superuser:
-            return HighPermissionUserSerializer
-        return UserSerializer
+            return HighPermissionUserDetailSerializer
+        return UserDetailSerializer
 
 
 class UserHost(generics.GenericAPIView):
