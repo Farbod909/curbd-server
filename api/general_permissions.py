@@ -1,12 +1,12 @@
 from rest_framework import permissions
 
 
-class IsStaff(permissions.BasePermission):
+class IsAdminOrIsStaff(permissions.BasePermission):
     """
     Custom permission to only allow staff to browse.
     """
     def has_permission(self, request, view):
-        return request.user.is_staff
+        return request.user.is_superuser or request.user.is_staff
 
 
 class ReadOnly(permissions.BasePermission):

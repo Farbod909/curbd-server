@@ -28,6 +28,7 @@ class UserListSerializer(serializers.HyperlinkedModelSerializer):
         Customer.objects.create(user=user)
         if is_host:
             Host.objects.create(user=user)
+        # POSSIBLE ADDITION: allow deleting of Host object if is_host is set to false
         return user
 
 
