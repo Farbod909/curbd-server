@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.postgres.fields import ArrayField
+from rest_framework.fields import ListField
 
 
 class ChoiceArrayField(ArrayField):
@@ -27,3 +28,12 @@ class ChoiceArrayField(ArrayField):
         # care for it.
         # pylint:disable=bad-super-call
         return super(ArrayField, self).formfield(**defaults)
+
+
+class StringArrayField(ListField):
+    """
+    String representation of an array field.
+    """
+    def to_internal_value(self, data):
+        data = data[0].split(", ")  # convert string to list
+        return super().to_internal_value(data)

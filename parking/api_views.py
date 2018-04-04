@@ -16,6 +16,10 @@ class ParkingSpaceList(generics.ListCreateAPIView):
     permission_classes = (HostsCanCreateAndStaffCanRead,)
     filter_backends = (LocationAndTimeAvailableFilter,)
 
+    def perform_create(self, serializer):
+        serializer.validated_data['host'] = self.request.user.host
+        return super(ParkingSpaceList, self).perform_create(serializer)
+
 
 class ParkingSpaceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = ParkingSpace.objects.all()

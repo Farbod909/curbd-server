@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .fields import StringArrayField
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 
 
@@ -30,22 +31,17 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
         many=True, read_only=True)
     repeatingavailability_set = RepeatingAvailabilitySerializer(
         many=True, read_only=True)
-
     reservations = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='reservation-detail',
         read_only=True)
+    features = StringArrayField()
+    # TODO: add validation for features
 
     class Meta:
         model = ParkingSpace
         fields = '__all__'
         read_only_fields = ('host',)
-
-    def create(self, validated_data):
-        parkingspace = ParkingSpace.objects.create(**validated_data)
-        parkingspace.host = self.request.user.host
-        parkingspace.save()
-        return parkingspace
 
 
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
