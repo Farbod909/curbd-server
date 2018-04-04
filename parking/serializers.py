@@ -14,6 +14,11 @@ class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
         model = FixedAvailability
         fields = '__all__'
 
+    def validate_parking_space(self, value):
+        if self.context['request'].user.host != value.host:
+            raise serializers.ValidationError("Current user must own specified parking space.")
+        return value
+
 
 class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
     reservation_set = serializers.HyperlinkedRelatedField(
