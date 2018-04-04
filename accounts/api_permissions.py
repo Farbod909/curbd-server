@@ -42,3 +42,18 @@ class IsStaffOrWriteOnly(permissions.BasePermission):
             return request.user.is_staff
 
         return True
+
+
+class CustomersCanCreateStaffCanRead(permissions.BasePermission):
+    """
+    Custom permission to only allow customers to create cars and
+    only staff can read list of cars
+    """
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_staff
+
+        try:
+            return request.user.is_customer()
+        except AttributeError:  # 'AnonymousUser' object has no attribute 'is_customer'
+            return False

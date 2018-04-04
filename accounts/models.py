@@ -55,6 +55,14 @@ class User(AbstractBaseUser, PermissionsMixin):
             return False
         return True
 
+    def is_customer(self):
+        try:
+            self.customer
+        except ObjectDoesNotExist:
+            return False
+        return True
+
+
 
 class Customer(models.Model):
 

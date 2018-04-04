@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import (
     IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
-    IsAdminOrIsTargetUser, IsStaffOrWriteOnly)
+    IsAdminOrIsTargetUser, IsStaffOrWriteOnly, CustomersCanCreateStaffCanRead)
 from .models import Customer, Host, Car
 from .serializers import (
     UserDetailSerializer, HighPermissionUserDetailSerializer,
@@ -47,10 +47,9 @@ class ChangePassword(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            # Check old password
             if not instance.check_password(serializer.data.get("old_password")):
                 return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
-            # set_password also hashes the password that the user will get
+
             instance.set_password(serializer.data.get("new_password"))
             instance.save()
             return Response("Success.", status=status.HTTP_200_OK)
@@ -65,7 +64,7 @@ class UserHost(generics.GenericAPIView):
         user = self.get_object()
         try:
             return redirect(reverse('host-detail', args=[user.host.pk]))
-        except:  # user.host not found
+        except AttributeError:  # user.host not found
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
@@ -76,7 +75,7 @@ class UserCustomer(generics.GenericAPIView):
         user = self.get_object()
         try:
             return redirect(reverse('customer-detail', args=[user.customer.pk]))
-        except:  # user.customer not found
+        except AttributeError:  # user.customer not found
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
@@ -104,10 +103,14 @@ class HostDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (ReadOnly,)
 
 
-class CarList(generics.ListAPIView):
+class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-    permission_classes = (IsStaff,)
+    permission_classes = (CustomersCanCreateStaffCanRead,)
+
+    def perform_create(self, serializer):
+        serializer.validated_data['customer'] = self.request.user.customer
+        return super(CarList, self).perform_create(serializer)
 
 
 class CarDetail(generics.RetrieveUpdateDestroyAPIView):
