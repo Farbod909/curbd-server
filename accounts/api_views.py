@@ -4,11 +4,9 @@ from rest_framework import generics, status, filters
 from rest_framework.response import Response
 
 from api.general_permissions import ReadOnly, IsStaff
-
-
 from .api_permissions import (
     IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
-    IsAdminOrIsTargetUser)
+    IsAdminOrIsTargetUser, IsStaffOrWriteOnly)
 from .models import Customer, Host, Car
 from .serializers import (
     UserDetailSerializer, HighPermissionUserDetailSerializer,
@@ -19,7 +17,7 @@ from .serializers import (
 class UserList(generics.ListCreateAPIView):
     queryset = get_user_model().objects.all().order_by('-date_joined')
     serializer_class = UserListSerializer
-    permission_classes = (IsStaff,)
+    permission_classes = (IsStaffOrWriteOnly,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('email',)
     ordering_fields = ('date_joined', 'first_name', 'last_name', 'email',)
@@ -94,7 +92,7 @@ class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (ReadOnly,)
 
 
-class HostList(generics.ListCreateAPIView):
+class HostList(generics.ListAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
     permission_classes = (IsStaff,)
