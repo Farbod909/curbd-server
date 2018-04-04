@@ -6,7 +6,7 @@ from . import api_views
 urlpatterns = [
     path('users/', api_views.UserList.as_view(), name='user-list'),
     path('users/<int:pk>/', api_views.UserDetail.as_view(), name='user-detail'),
-    path('users/<int:pk>/change_password/', api_views.ChangePassword.as_view(), name='user-detail'),
+    path('users/<int:pk>/change_password/', api_views.ChangePassword.as_view(), name='user-change-password'),
     path('users/<int:pk>/host/', api_views.UserHost.as_view(), name='user-host'),
     path('users/<int:pk>/customer/', api_views.UserCustomer.as_view(), name='user-customer'),
     path('customers/', api_views.CustomerList.as_view(), name='customer-list'),

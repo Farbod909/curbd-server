@@ -92,6 +92,7 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Customer
         fields = '__all__'
+        depth = 1
 
 
 class HostSerializer(serializers.HyperlinkedModelSerializer):
@@ -103,6 +104,7 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Host
         fields = '__all__'
+        depth = 1
 
 
 class CarSerializer(serializers.HyperlinkedModelSerializer):
