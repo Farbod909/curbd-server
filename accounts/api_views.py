@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, reverse
 from rest_framework import generics, status, filters
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError, ParseError
 
 from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import (
@@ -48,13 +49,13 @@ class ChangePassword(generics.UpdateAPIView):
 
         if serializer.is_valid():
             if not instance.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+                raise ValidationError(detail={"old_password": "Wrong password"})  # 400 bad request
 
             instance.set_password(serializer.data.get("new_password"))
             instance.save()
-            return Response("Success.", status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ParseError(detail=serializer.errors)  # 400 bad request
 
 
 class UserHost(generics.GenericAPIView):
