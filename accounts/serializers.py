@@ -79,6 +79,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+    user = UserDetailSerializer(read_only=True)
     car_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='car-detail',
@@ -92,10 +93,10 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Customer
         fields = '__all__'
-        depth = 1
 
 
 class HostSerializer(serializers.HyperlinkedModelSerializer):
+    user = UserDetailSerializer(read_only=True)
     parkingspace_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='parkingspace-detail',
@@ -104,7 +105,6 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Host
         fields = '__all__'
-        depth = 1
 
 
 class CarSerializer(serializers.HyperlinkedModelSerializer):

@@ -39,6 +39,13 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ParkingSpace
         fields = '__all__'
+        read_only_fields = ('host',)
+
+    def create(self, validated_data):
+        parkingspace = ParkingSpace.objects.create(**validated_data)
+        parkingspace.host = self.request.user.host
+        parkingspace.save()
+        return parkingspace
 
 
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
