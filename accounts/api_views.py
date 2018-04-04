@@ -6,10 +6,13 @@ from rest_framework.response import Response
 from api.general_permissions import ReadOnly, IsStaff
 
 
-from .api_permissions import IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly
+from .api_permissions import (
+    IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
+    IsAdminOrIsTargetUser)
 from .models import Customer, Host, Car
 from .serializers import (
-    UserDetailSerializer, HighPermissionUserDetailSerializer, UserListSerializer,
+    UserDetailSerializer, HighPermissionUserDetailSerializer,
+    UserListSerializer, ChangePasswordSerializer,
     CustomerSerializer, HostSerializer, CarSerializer)
 
 
@@ -31,6 +34,30 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
         if self.request.user.is_superuser:
             return HighPermissionUserDetailSerializer
         return UserDetailSerializer
+
+
+class ChangePassword(generics.UpdateAPIView):
+    """
+    An endpoint for changing password.
+    """
+    queryset = get_user_model().objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = (IsAdminOrIsTargetUser,)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            # Check old password
+            if not instance.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            # set_password also hashes the password that the user will get
+            instance.set_password(serializer.data.get("new_password"))
+            instance.save()
+            return Response("Success.", status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserHost(generics.GenericAPIView):

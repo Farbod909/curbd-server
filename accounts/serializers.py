@@ -73,6 +73,11 @@ class HighPermissionUserDetailSerializer(UserDetailSerializer):
         read_only_fields = ('last_login', 'is_superuser',)
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
     car_set = serializers.HyperlinkedRelatedField(
         many=True,

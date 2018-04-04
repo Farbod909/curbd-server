@@ -25,3 +25,11 @@ class IsStaffOrIsTargetUserOrReadOnly(permissions.BasePermission):
             return True
 
         return request.user.is_staff or obj == request.user
+
+
+class IsAdminOrIsTargetUser(permissions.BasePermission):
+    """
+    Custom permission to only allow target user to access view
+    """
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser or obj == request.user
