@@ -4,7 +4,7 @@ from rest_framework import generics, status, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, ParseError
 
-from api.general_permissions import ReadOnly, IsAdminOrIsStaff
+from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import (
     IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
     IsAdminOrIsTargetUser, IsStaffOrWriteOnly, CustomersCanCreateStaffCanRead)
@@ -83,7 +83,7 @@ class UserCustomer(generics.GenericAPIView):
 class CustomerList(generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = (IsAdminOrIsStaff,)
+    permission_classes = (IsStaff,)
 
 
 class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -95,7 +95,7 @@ class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
 class HostList(generics.ListAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
-    permission_classes = (IsAdminOrIsStaff,)
+    permission_classes = (IsStaff,)
     # POSSIBLE ADDITION: change to ListCreateAPIView and override perform_create
     # to automatically set host
 

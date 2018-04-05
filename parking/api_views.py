@@ -1,8 +1,7 @@
 from rest_framework import generics
-from rest_framework import permissions
 
 from .api_permissions import (
-    IsAdminOrIsParkingSpaceOwnerOrReadOnly, HostsCanCreateAndStaffCanRead,
+    IsAdminOrIsParkingSpaceOwnerOrReadOnly, IsHostOrReadOnly,
     IsAdminOrIsOwnerOfParkingSpaceOfAvailabilityOrReadOnly,
     IsAdminOrIsReservationOwnerOrReadOnly, IsCustomerOrReadOnly)
 from .api_filters import LocationAndTimeAvailableFilter
@@ -13,7 +12,7 @@ from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, Re
 class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
-    permission_classes = (HostsCanCreateAndStaffCanRead,)
+    permission_classes = (IsHostOrReadOnly,)
     filter_backends = (LocationAndTimeAvailableFilter,)
 
     def perform_create(self, serializer):
@@ -30,7 +29,7 @@ class ParkingSpaceDetail(generics.RetrieveUpdateDestroyAPIView):
 class FixedAvailabilityList(generics.ListCreateAPIView):
     queryset = FixedAvailability.objects.all()
     serializer_class = FixedAvailabilitySerializer
-    permission_classes = (HostsCanCreateAndStaffCanRead,)
+    permission_classes = (IsHostOrReadOnly,)
 
 
 class FixedAvailabilityDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -42,7 +41,7 @@ class FixedAvailabilityDetail(generics.RetrieveUpdateDestroyAPIView):
 class RepeatingAvailabilityList(generics.ListCreateAPIView):
     queryset = RepeatingAvailability.objects.all()
     serializer_class = RepeatingAvailabilitySerializer
-    permission_classes = (HostsCanCreateAndStaffCanRead,)
+    permission_classes = (IsHostOrReadOnly,)
 
 
 class RepeatingAvailabilityDetail(generics.RetrieveUpdateDestroyAPIView):

@@ -14,7 +14,7 @@ class IsAdminOrIsParkingSpaceOwnerOrReadOnly(permissions.BasePermission):
         return request.user.is_superuser or obj.host.user == request.user
 
 
-class HostsCanCreateAndStaffCanRead(permissions.BasePermission):
+class IsHostOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow hosts to create parking spaces.
     Only staff can read.
@@ -27,7 +27,7 @@ class HostsCanCreateAndStaffCanRead(permissions.BasePermission):
             except AttributeError:  # 'AnonymousUser' object has no attribute 'is_host'
                 return False
 
-        return request.user.is_staff
+        return True
 
 
 class IsAdminOrIsOwnerOfParkingSpaceOfAvailabilityOrReadOnly(permissions.BasePermission):
