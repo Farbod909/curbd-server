@@ -24,7 +24,7 @@ class HostsCanCreateAndStaffCanRead(permissions.BasePermission):
         if request.method == 'POST':
             try:
                 return request.user.is_host()
-            except AttributeError:  # AnonymousUser (when no user is logged in) has no attribute is_host
+            except AttributeError:  # 'AnonymousUser' object has no attribute 'is_host'
                 return False
 
         return request.user.is_staff
@@ -54,3 +54,17 @@ class IsAdminOrIsReservationOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         return request.user.is_superuser or obj.car.customer.user == request.user
+
+
+class IsCustomerOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow customers to create reservations
+    """
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        try:
+            return request.user.is_customer()
+        except AttributeError:  # 'AnonymousUser' object has no attribute 'is_customer'
+            return False

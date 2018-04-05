@@ -4,7 +4,7 @@ from rest_framework import permissions
 from .api_permissions import (
     IsAdminOrIsParkingSpaceOwnerOrReadOnly, HostsCanCreateAndStaffCanRead,
     IsAdminOrIsOwnerOfParkingSpaceOfAvailabilityOrReadOnly,
-    IsAdminOrIsReservationOwnerOrReadOnly,)
+    IsAdminOrIsReservationOwnerOrReadOnly, IsCustomerOrReadOnly)
 from .api_filters import LocationAndTimeAvailableFilter
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
@@ -54,7 +54,7 @@ class RepeatingAvailabilityDetail(generics.RetrieveUpdateDestroyAPIView):
 class ReservationList(generics.ListCreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsCustomerOrReadOnly,)
 
 
 class ReservationDetail(generics.RetrieveUpdateDestroyAPIView):
