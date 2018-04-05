@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .fields import StringArrayField
+from .fields import StringArrayField, CarField
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation, Car
 
 
@@ -64,11 +64,7 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
-    car = serializers.HyperlinkedRelatedField(
-        view_name='car-detail',
-        lookup_field='license_plate',
-        queryset=Car.objects.all())
-
+    car = CarField(lookup_field='license_plate')
     parking_space = serializers.HyperlinkedRelatedField(
         view_name='parkingspace-detail',
         read_only=True)
@@ -85,4 +81,5 @@ class ReservationSerializer(serializers.HyperlinkedModelSerializer):
         if value.customer != self.context['request'].user.customer:
             raise serializers.ValidationError("Current user must own specified car.")
         return value
+
 
