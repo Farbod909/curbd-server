@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
-from .fields import StringArrayField, CarField
+from .serializer_fields import StringArrayField, CarField, ParkingSpaceField
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation, Car
 
 
 class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+    parking_space = ParkingSpaceField()
     reservation_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='reservation-detail',
@@ -19,12 +20,17 @@ class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
         ensure that the user creating an availability owns the parking space
         specified in the parking_space field.
         """
-        if self.context['request'].user.host != value.host:
+        try:
+            if self.context['request'].user.host != value.host:
+                raise serializers.ValidationError("Current user must own specified parking space.")
+        except AttributeError:  # user.host doesn't exist
             raise serializers.ValidationError("Current user must own specified parking space.")
+
         return value
 
 
 class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+    parking_space = ParkingSpaceField()
     reservation_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='reservation-detail',

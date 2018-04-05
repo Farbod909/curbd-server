@@ -28,7 +28,6 @@ class UserListSerializer(serializers.HyperlinkedModelSerializer):
         Customer.objects.create(user=user)
         if is_host:
             Host.objects.create(user=user)
-        # POSSIBLE ADDITION: allow deleting of Host object if is_host is set to false
         return user
 
 
@@ -39,7 +38,7 @@ class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
     """
     host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
     customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
-    is_host = serializers.BooleanField(write_only=True)
+    is_host = serializers.BooleanField()
 
     class Meta:
         model = get_user_model()
@@ -61,17 +60,9 @@ class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
 
         if is_host:
             Host.objects.create(user=instance)
+        # POSSIBLE ADDITION: allow deleting of Host object if is_host is set to false
 
         return instance
-
-
-class HighPermissionUserDetailSerializer(UserDetailSerializer):
-    """
-    This Serializer class allows editing of the is_staff attribute of User.
-    """
-
-    class Meta(UserDetailSerializer.Meta):
-        read_only_fields = ('last_login', 'is_superuser',)
 
 
 class ChangePasswordSerializer(serializers.Serializer):
