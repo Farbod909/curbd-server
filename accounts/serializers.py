@@ -11,7 +11,7 @@ class UserListSerializer(serializers.HyperlinkedModelSerializer):
     """
     host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
     customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
-    is_host = serializers.BooleanField(write_only=True)
+    is_host = serializers.BooleanField()
 
     class Meta:
         model = get_user_model()

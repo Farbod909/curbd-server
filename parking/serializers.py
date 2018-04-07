@@ -72,12 +72,13 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
     car = CarField(lookup_field='license_plate')
     parking_space = serializers.HyperlinkedRelatedField(
-        view_name='parkingspace-detail',
-        read_only=True)
+        queryset=ParkingSpace.objects.all(),
+        view_name='parkingspace-detail')
 
     class Meta:
         model = Reservation
-        fields = '__all__'
+        exclude = ('for_repeating',)
+        read_only_fields = ('fixed_availability', 'repeating_availability',)
 
     def validate_car(self, value):
         """

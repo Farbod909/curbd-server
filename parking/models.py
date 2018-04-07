@@ -75,7 +75,7 @@ class ParkingSpace(models.Model):
     features = ChoiceArrayField(
         models.CharField(max_length=50, choices=FEATURES),
         blank=True,
-        help_text="A list of features e.g. EV charging, shade, etc.")
+        help_text="A list of features e.g. EV charging, Lit, etc.")
 
     address = models.CharField(
         "Street address",
