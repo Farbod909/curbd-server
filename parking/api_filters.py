@@ -1,7 +1,7 @@
 import dateutil.parser
 from django.db.models.query import Q
-import pytz
 from rest_framework import filters
+from rest_framework.exceptions import ValidationError
 
 
 class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
@@ -32,10 +32,12 @@ class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
                 Q(latitude__lte=top_right_lat))
 
         if not any([item is None for item in time_params]):
-            pst = pytz.timezone('US/Pacific')  # TODO: Determine time zone based on coordinates
 
-            start_datetime = pst.localize(dateutil.parser.parse(start_datetime_iso))
-            end_datetime = pst.localize(dateutil.parser.parse(end_datetime_iso))
+            start_datetime = dateutil.parser.parse(start_datetime_iso)
+            end_datetime = dateutil.parser.parse(end_datetime_iso)
+
+            if start_datetime.tzinfo is None or end_datetime.tzinfo is None:
+                raise ValidationError("Timezone must be provided")
 
             # limit queryset to parking spaces with
             # vacant spots in the specified datetime range.

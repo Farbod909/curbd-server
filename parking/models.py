@@ -4,9 +4,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 import calendar
-import datetime
 from enum import Enum
-import pytz
 
 from accounts.models import Car, Host
 from .fields import ChoiceArrayField
@@ -107,7 +105,6 @@ class ParkingSpace(models.Model):
 
         for ra in self.repeatingavailability_set.all():
             weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-            print(ra.repeating_days)
             if start_datetime.weekday() == end_datetime.weekday() and weekdays[start_datetime.weekday()] in ra.repeating_days:
                 if start_datetime.time() >= ra.start_time and end_datetime.time() <= ra.end_time:
                     return True
