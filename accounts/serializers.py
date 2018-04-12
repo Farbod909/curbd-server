@@ -75,8 +75,7 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
     car_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='car-detail',
-        read_only=True,
-        lookup_field='license_plate')
+        read_only=True)
     reservations = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='reservation-detail',
@@ -101,8 +100,7 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
 
 class CarSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name='car-detail',
-        lookup_field='license_plate')
+        view_name='car-detail')
     reservation_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='reservation-detail',

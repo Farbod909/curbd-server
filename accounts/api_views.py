@@ -115,5 +115,4 @@ class CarDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
     permission_classes = (IsAdminOrIsCarOwnerOrIfIsStaffReadOnly,)
-    lookup_field = 'license_plate'
 

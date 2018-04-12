@@ -70,7 +70,7 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
-    car = CarField(lookup_field='license_plate')
+    car = CarField()
     parking_space = serializers.HyperlinkedRelatedField(
         queryset=ParkingSpace.objects.all(),
         view_name='parkingspace-detail')

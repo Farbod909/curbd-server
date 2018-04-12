@@ -14,5 +14,5 @@ urlpatterns = [
     path('hosts/', api_views.HostList.as_view(), name='host-list'),
     path('hosts/<int:pk>/', api_views.HostDetail.as_view(), name='host-detail'),
     path('cars/', api_views.CarList.as_view(), name='car-list'),
-    path('cars/<license_plate>/', api_views.CarDetail.as_view(), name='car-detail'),
+    path('cars/<int:pk>/', api_views.CarDetail.as_view(), name='car-detail'),
 ]
