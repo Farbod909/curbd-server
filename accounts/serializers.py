@@ -9,8 +9,14 @@ class UserListSerializer(serializers.HyperlinkedModelSerializer):
     Standard User Serializer for displaying a list of users via GET.
     Allows creation of users via POST.
     """
-    host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
-    customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
+    id = serializers.IntegerField(read_only=True)
+
+    host_url = serializers.HyperlinkedRelatedField(source='host', view_name='host-detail', read_only=True)
+    customer_url = serializers.HyperlinkedRelatedField(source='customer', view_name='customer-detail', read_only=True)
+
+    host = serializers.PrimaryKeyRelatedField(read_only=True)
+    customer = serializers.PrimaryKeyRelatedField(read_only=True)
+
     is_host = serializers.BooleanField()
 
     class Meta:
@@ -36,8 +42,14 @@ class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
     Standard User Serializer that allows viewing detail of a User instance.
     Allows deletion and editing of user attributes via DELETE, PUT, and PATCH
     """
-    host = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
-    customer = serializers.HyperlinkedRelatedField(view_name='customer-detail', read_only=True)
+    id = serializers.IntegerField(read_only=True)
+
+    host_url = serializers.HyperlinkedRelatedField(source='host', view_name='host-detail', read_only=True)
+    customer_url = serializers.HyperlinkedRelatedField(source='customer', view_name='customer-detail', read_only=True)
+
+    host = serializers.PrimaryKeyRelatedField(read_only=True)
+    customer = serializers.PrimaryKeyRelatedField(read_only=True)
+
     is_host = serializers.BooleanField()
 
     class Meta:
@@ -70,11 +82,26 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
+class CarSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        view_name='car-detail')
+    reservation_set = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='reservation-detail',
+        read_only=True)
+
+    class Meta:
+        model = Car
+        fields = '__all__'
+        read_only_fields = ('customer',)
+
+
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
     user = UserDetailSerializer(read_only=True)
-    car_set = serializers.HyperlinkedRelatedField(
+    car_set = CarSerializer(
         many=True,
-        view_name='car-detail',
+        # view_name='car-detail',
         read_only=True)
     reservations = serializers.HyperlinkedRelatedField(
         many=True,
@@ -97,16 +124,3 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
         model = Host
         fields = '__all__'
 
-
-class CarSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='car-detail')
-    reservation_set = serializers.HyperlinkedRelatedField(
-        many=True,
-        view_name='reservation-detail',
-        read_only=True)
-
-    class Meta:
-        model = Car
-        fields = '__all__'
-        read_only_fields = ('customer',)

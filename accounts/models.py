@@ -63,7 +63,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
 
-
 class Customer(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)

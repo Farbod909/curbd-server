@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, reverse
-from rest_framework import generics, status, filters
+from rest_framework import generics, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, ParseError
 
@@ -30,6 +30,14 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsStaffOrIsTargetUserOrReadOnly,)
 
 
+class UserSelfDetail(generics.RetrieveAPIView):
+    serializer_class = UserDetailSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+
+
 class ChangePassword(generics.UpdateAPIView):
     """
     An endpoint for changing password.
@@ -53,26 +61,34 @@ class ChangePassword(generics.UpdateAPIView):
         raise ParseError(detail=serializer.errors)  # 400 bad request
 
 
-class UserHost(generics.GenericAPIView):
+class UserHost(generics.RetrieveAPIView):
     queryset = get_user_model().objects.all()
+    serializer_class = HostSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
-        user = self.get_object()
-        try:
-            return redirect(reverse('host-detail', args=[user.host.pk]))
-        except AttributeError:  # user.host not found
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    def get_object(self):
+        user = super(UserHost, self).get_object()
+        return user.host
 
 
-class UserCustomer(generics.GenericAPIView):
+class UserCustomer(generics.RetrieveAPIView):
     queryset = get_user_model().objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
-        user = self.get_object()
-        try:
-            return redirect(reverse('customer-detail', args=[user.customer.pk]))
-        except AttributeError:  # user.customer not found
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    def get_object(self):
+        user = super(UserCustomer, self).get_object()
+        return user.customer
+
+
+class UserSelfHost(UserHost):
+    def get_object(self):
+        return self.request.user.host
+
+
+class UserSelfCustomer(UserCustomer):
+    def get_object(self):
+        return self.request.user.customer
 
 
 class CustomerList(generics.ListAPIView):
