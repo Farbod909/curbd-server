@@ -1,4 +1,4 @@
-from rest_framework.serializers import ListField, HyperlinkedRelatedField
+from rest_framework.serializers import ListField, HyperlinkedRelatedField, PrimaryKeyRelatedField
 
 
 class StringArrayField(ListField):
@@ -15,12 +15,11 @@ class StringArrayField(ListField):
         return super().to_internal_value(data)
 
 
-class CarField(HyperlinkedRelatedField):
+class CarField(PrimaryKeyRelatedField):
     """
     Field that limits the queryset of the cars to the cars
     owned by the current user
     """
-    view_name = 'car-detail'
 
     def get_queryset(self):
         # TODO: limit queryset only if user is not admin

@@ -52,6 +52,7 @@ class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     fixedavailability_set = FixedAvailabilitySerializer(
         many=True, read_only=True)
     repeatingavailability_set = RepeatingAvailabilitySerializer(
@@ -71,8 +72,15 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
     car = CarField()
-    parking_space = serializers.HyperlinkedRelatedField(
-        queryset=ParkingSpace.objects.all(),
+    car_url = serializers.HyperlinkedRelatedField(
+        source='car',
+        read_only=True,
+        view_name='car-detail')
+
+    parking_space = serializers.PrimaryKeyRelatedField(queryset=ParkingSpace.objects.all())
+    parking_space_url = serializers.HyperlinkedRelatedField(
+        source='parking_space',
+        read_only=True,
         view_name='parkingspace-detail')
 
     class Meta:
