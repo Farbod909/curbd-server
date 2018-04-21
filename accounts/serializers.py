@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import Customer, Host, Car
+from parking.serializers import ReservationSerializer
 
 
 class UserListSerializer(serializers.HyperlinkedModelSerializer):
@@ -103,9 +104,8 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         # view_name='car-detail',
         read_only=True)
-    reservations = serializers.HyperlinkedRelatedField(
+    reservations = ReservationSerializer(
         many=True,
-        view_name='reservation-detail',
         read_only=True)
 
     class Meta:
