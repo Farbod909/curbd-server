@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -20,9 +21,10 @@ class VehicleSize(Enum):
 
 class ParkingSpaceFeature(Enum):
     EV_charging = "EV Charging"
-    Lit = "Lit"
+    Illuminated = "Illuminated"
     Covered = "Covered"
     Guarded = "Guarded"
+    Surveillance = "Surveillance"
 
 
 class Weekday(Enum):
@@ -47,9 +49,10 @@ class ParkingSpace(models.Model):
 
     FEATURES = (
         (ParkingSpaceFeature.EV_charging.value, "EV Charging"),
-        (ParkingSpaceFeature.Lit.value, "Lit"),
+        (ParkingSpaceFeature.Illuminated.value, "Illuminated"),
         (ParkingSpaceFeature.Covered.value, "Covered"),
         (ParkingSpaceFeature.Guarded.value, "Guarded"),
+        (ParkingSpaceFeature.Surveillance.value, "Surveillance"),
     )
 
     host = models.ForeignKey(
@@ -73,7 +76,7 @@ class ParkingSpace(models.Model):
     features = ChoiceArrayField(
         models.CharField(max_length=50, choices=FEATURES),
         blank=True,
-        help_text="A list of features e.g. EV charging, Lit, etc.")
+        help_text="A list of features e.g. EV charging, Illuminated, etc.")
 
     address = models.CharField(
         "Street address",
@@ -429,3 +432,8 @@ class Reservation(models.Model):
                 parking_space,
                 timezone.localtime(self.start_datetime).strftime("%H:%M on %b %d, %Y"),
                 timezone.localtime(self.end_datetime).strftime("%H:%M on %b %d, %Y"))
+
+
+class ParkingSpaceRating(models.Model):
+    value = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
+    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)

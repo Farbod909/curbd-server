@@ -3,7 +3,6 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MaxValueValidator
 from django.db import models
 
 from .managers import UserManager
@@ -96,9 +95,3 @@ class Car(models.Model):
     def __str__(self):
         return "Car: %s - %s %s %s %s" % (
             self.license_plate, self.color, self.year, self.make, self.model)
-
-
-class Rating(models.Model):
-
-    value = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
-    host = models.ForeignKey(Host, on_delete=models.CASCADE)
