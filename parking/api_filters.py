@@ -39,9 +39,29 @@ class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
             if start_datetime.tzinfo is None or end_datetime.tzinfo is None:
                 raise ValidationError("Timezone must be provided")
 
+            if start_datetime >= end_datetime:
+                raise ValidationError("end must be a later date than start")
+
             # limit queryset to parking spaces with
             # vacant spots in the specified datetime range.
             queryset = [parkingspace for parkingspace in queryset
                         if parkingspace.unreserved_spaces(start_datetime, end_datetime) > 0]
 
         return queryset
+
+
+class MinVehicleSizeFilter(filters.BaseFilterBackend):
+    """
+    Filter the returned parking spaces by minimum vehicle size
+    """
+
+    def filter_queryset(self, request, queryset, view):
+        min_vehicle_size = request.query_params.get('size', None)
+
+        if min_vehicle_size is not None:
+            queryset = queryset.filter(size__gte=min_vehicle_size)
+
+        return queryset
+
+
+

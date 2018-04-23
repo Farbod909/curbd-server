@@ -9,7 +9,7 @@ from .api_permissions import (
     IsAdminOrIsParkingSpaceOwnerOrReadOnly, IsHostOrReadOnly,
     IsAdminOrIsOwnerOfParkingSpaceOfAvailabilityOrReadOnly,
     IsAdminOrIsReservationOwnerOrReadOnly, IsCustomerOrReadOnly)
-from .api_filters import LocationAndTimeAvailableFilter
+from .api_filters import LocationAndTimeAvailableFilter, MinVehicleSizeFilter
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
 
@@ -18,7 +18,7 @@ class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
     permission_classes = (IsHostOrReadOnly,)
-    filter_backends = (LocationAndTimeAvailableFilter,)
+    filter_backends = (MinVehicleSizeFilter, LocationAndTimeAvailableFilter)
 
     def perform_create(self, serializer):
         serializer.validated_data['host'] = self.request.user.host
