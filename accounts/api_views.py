@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect, reverse
+from django.http import Http404
 from rest_framework import generics, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, ParseError
@@ -68,7 +68,10 @@ class UserHost(generics.RetrieveAPIView):
 
     def get_object(self):
         user = super(UserHost, self).get_object()
-        return user.host
+        try:
+            return user.host
+        except Host.DoesNotExist:
+            raise Http404
 
 
 class UserCustomer(generics.RetrieveAPIView):
@@ -78,17 +81,10 @@ class UserCustomer(generics.RetrieveAPIView):
 
     def get_object(self):
         user = super(UserCustomer, self).get_object()
-        return user.customer
-
-
-class UserSelfHost(UserHost):
-    def get_object(self):
-        return self.request.user.host
-
-
-class UserSelfCustomer(UserCustomer):
-    def get_object(self):
-        return self.request.user.customer
+        try:
+            return user.customer
+        except Customer.DoesNotExist:
+            raise Http404
 
 
 class CustomerList(generics.ListAPIView):
@@ -103,6 +99,17 @@ class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (ReadOnly,)
 
 
+class CustomerSelfDetail(generics.RetrieveAPIView):
+    serializer_class = CustomerSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        try:
+            return self.request.user.customer
+        except Customer.DoesNotExist:
+            raise Http404
+
+
 class HostList(generics.ListAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
@@ -115,6 +122,17 @@ class HostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Host.objects.all()
     serializer_class = HostSerializer
     permission_classes = (ReadOnly,)
+
+
+class HostSelfDetail(generics.RetrieveAPIView):
+    serializer_class = HostSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        try:
+            return self.request.user.host
+        except Host.DoesNotExist:
+            raise Http404
 
 
 class CarList(generics.ListCreateAPIView):
