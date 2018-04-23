@@ -7,16 +7,8 @@ from django.utils import timezone
 import calendar
 from enum import Enum
 
-from accounts.models import Car, Host
+from accounts.models import Car, Host, VEHICLE_SIZES
 from .fields import ChoiceArrayField
-
-
-class VehicleSize(Enum):
-    Motorcycle = 1
-    Compact = 2
-    Mid_sized = 3
-    Large = 4
-    Oversized = 5
 
 
 class ParkingSpaceFeature(Enum):
@@ -38,14 +30,6 @@ class Weekday(Enum):
 
 
 class ParkingSpace(models.Model):
-
-    VEHICLE_SIZES = (
-        (VehicleSize.Motorcycle.value, "Motorcycle"),
-        (VehicleSize.Compact.value, "Compact"),
-        (VehicleSize.Mid_sized.value, "Mid-sized"),
-        (VehicleSize.Large.value, "Large"),
-        (VehicleSize.Oversized.value, "Oversized"),
-    )
 
     FEATURES = (
         (ParkingSpaceFeature.EV_charging.value, "EV Charging"),
@@ -345,6 +329,7 @@ class RepeatingAvailability(models.Model):
 
 
 class Reservation(models.Model):
+    from accounts.models import Car
 
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
 

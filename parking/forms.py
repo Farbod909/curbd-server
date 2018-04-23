@@ -2,12 +2,13 @@ from django import forms
 
 from accounts.models import Car
 from .models import ParkingSpace, Reservation
+from accounts.models import VEHICLE_SIZES
 
 
 class ParkingSpaceCreationForm(forms.Form):
     address = forms.CharField()
     size = forms.ChoiceField(
-        choices=ParkingSpace.VEHICLE_SIZES,
+        choices=VEHICLE_SIZES,
         help_text="This is the maximum vehicle size the parking space can support")
     features = forms.MultipleChoiceField(
         widget=forms.CheckboxSelectMultiple,

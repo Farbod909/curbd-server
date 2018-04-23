@@ -5,6 +5,8 @@ from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
+from enum import Enum
+
 from .managers import UserManager
 
 
@@ -82,6 +84,23 @@ class Host(models.Model):
         return "Host: %s %s" % (self.user.first_name, self.user.last_name)
 
 
+class VehicleSize(Enum):
+    Motorcycle = 1
+    Compact = 2
+    Mid_sized = 3
+    Large = 4
+    Oversized = 5
+
+
+VEHICLE_SIZES = (
+    (VehicleSize.Motorcycle.value, "Motorcycle"),
+    (VehicleSize.Compact.value, "Compact"),
+    (VehicleSize.Mid_sized.value, "Mid-sized"),
+    (VehicleSize.Large.value, "Large"),
+    (VehicleSize.Oversized.value, "Oversized"),
+)
+
+
 class Car(models.Model):
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -90,6 +109,7 @@ class Car(models.Model):
     year = models.CharField(max_length=25)
     make = models.CharField(max_length=25)
     model = models.CharField(max_length=25)
+    size = models.PositiveIntegerField(choices=VEHICLE_SIZES)
     license_plate = models.CharField(max_length=15, unique=True)
 
     def __str__(self):
