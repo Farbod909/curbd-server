@@ -1,4 +1,5 @@
 import calendar
+import dateutil.parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import generics
@@ -100,3 +101,63 @@ class ReservationDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
     permission_classes = (IsAdminOrIsReservationOwnerOrReadOnly,)
+
+
+class ParkingSpaceAvailability(generics.RetrieveAPIView):
+    queryset = ParkingSpace.objects.all()
+
+    def get_serializer_class(self):
+        parking_space = super(ParkingSpaceAvailability, self).get_object()
+        start_datetime_iso = self.request.query_params['start']
+        end_datetime_iso = self.request.query_params['end']
+
+        start_datetime = dateutil.parser.parse(start_datetime_iso)
+        end_datetime = dateutil.parser.parse(end_datetime_iso)
+
+        day_of_week = calendar.day_name[start_datetime.weekday()][:3]
+        try:
+            RepeatingAvailability.objects.get(
+                Q(parking_space=parking_space),
+                Q(start_time__lte=start_datetime.time()),
+                Q(end_time__gte=end_datetime.time()),
+                Q(repeating_days__contains=[day_of_week])
+            )
+        except ObjectDoesNotExist:
+            try:
+                FixedAvailability.objects.get(
+                    Q(parking_space=parking_space),
+                    Q(start_datetime__lte=start_datetime),
+                    Q(end_datetime__gte=end_datetime),
+                )
+            except ObjectDoesNotExist:
+                raise ValidationError(detail="No availabilities in given time range.")
+            else:
+                return FixedAvailabilitySerializer
+        else:
+            return RepeatingAvailabilitySerializer
+
+    def get_object(self):
+        parking_space = super(ParkingSpaceAvailability, self).get_object()
+        start_datetime_iso = self.request.query_params['start']
+        end_datetime_iso = self.request.query_params['end']
+
+        start_datetime = dateutil.parser.parse(start_datetime_iso)
+        end_datetime = dateutil.parser.parse(end_datetime_iso)
+
+        day_of_week = calendar.day_name[start_datetime.weekday()][:3]
+        try:
+            return RepeatingAvailability.objects.get(
+                Q(parking_space=parking_space),
+                Q(start_time__lte=start_datetime.time()),
+                Q(end_time__gte=end_datetime.time()),
+                Q(repeating_days__contains=[day_of_week])
+            )
+        except ObjectDoesNotExist:
+            try:
+                return FixedAvailability.objects.get(
+                    Q(parking_space=parking_space),
+                    Q(start_datetime__lte=start_datetime),
+                    Q(end_datetime__gte=end_datetime),
+                )
+            except ObjectDoesNotExist:
+                raise ValidationError(detail="No availabilities in given time range.")
