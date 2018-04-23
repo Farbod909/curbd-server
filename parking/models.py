@@ -90,7 +90,7 @@ class ParkingSpace(models.Model):
 
     def reservations(self):
         return Reservation.objects.filter(
-            Q(fixed_availability__parking_space=self) or
+            Q(fixed_availability__parking_space=self) |
             Q(repeating_availability__parking_space=self))
 
     def is_within_any_availability(self, start_datetime, end_datetime):

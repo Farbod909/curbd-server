@@ -51,25 +51,6 @@ class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
         return value
 
 
-class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    fixedavailability_set = FixedAvailabilitySerializer(
-        many=True, read_only=True)
-    repeatingavailability_set = RepeatingAvailabilitySerializer(
-        many=True, read_only=True)
-    reservations = serializers.HyperlinkedRelatedField(
-        many=True,
-        view_name='reservation-detail',
-        read_only=True)
-    features = StringArrayField()
-    # TODO: add validation for features
-
-    class Meta:
-        model = ParkingSpace
-        fields = '__all__'
-        read_only_fields = ('host',)
-
-
 class ReservationSerializer(serializers.HyperlinkedModelSerializer):
     car = CarField()
     car_url = serializers.HyperlinkedRelatedField(
@@ -96,5 +77,23 @@ class ReservationSerializer(serializers.HyperlinkedModelSerializer):
         if value.customer != self.context['request'].user.customer:
             raise serializers.ValidationError("Current user must own specified car.")
         return value
+
+
+class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    fixedavailability_set = FixedAvailabilitySerializer(
+        many=True, read_only=True)
+    repeatingavailability_set = RepeatingAvailabilitySerializer(
+        many=True, read_only=True)
+    reservations = ReservationSerializer(
+        many=True,
+        read_only=True)
+    features = StringArrayField()
+    # TODO: add validation for features
+
+    class Meta:
+        model = ParkingSpace
+        fields = '__all__'
+        read_only_fields = ('host',)
 
 
