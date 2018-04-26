@@ -62,6 +62,3 @@ class MinVehicleSizeFilter(filters.BaseFilterBackend):
             queryset = queryset.filter(size__gte=min_vehicle_size)
 
         return queryset
-
-
-

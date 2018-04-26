@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from rest_framework import serializers
 
 from .models import Customer, Host, Car
@@ -23,7 +24,7 @@ class UserListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
         exclude = ('groups', 'user_permissions',)
-        read_only_fields = ('last_login', 'is_superuser', 'is_staff',)
+        read_only_fields = ('last_login', 'is_superuser', 'is_staff', 'is_active')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -51,7 +52,9 @@ class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
     host = serializers.PrimaryKeyRelatedField(read_only=True)
     customer = serializers.PrimaryKeyRelatedField(read_only=True)
 
-    is_host = serializers.BooleanField()
+    is_host = serializers.BooleanField(help_text="un-marking this doesn't do anything. "
+                                                 "You can set is_host to true, but "
+                                                 "not vice versa.")
 
     class Meta:
         model = get_user_model()
@@ -72,7 +75,10 @@ class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
         instance.save()
 
         if is_host:
-            Host.objects.create(user=instance)
+            try:
+                Host.objects.create(user=instance)
+            except IntegrityError:  # user is already a host
+                pass
         # POSSIBLE ADDITION: allow deleting of Host object if is_host is set to false
 
         return instance
