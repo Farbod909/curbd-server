@@ -51,14 +51,42 @@ class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
         return value
 
 
-class ReservationSerializer(serializers.HyperlinkedModelSerializer):
-    car = CarField()
+class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    fixedavailability_set = FixedAvailabilitySerializer(
+        many=True, read_only=True)
+    repeatingavailability_set = RepeatingAvailabilitySerializer(
+        many=True, read_only=True)
+    # reservations = ReservationSerializer(
+    #     many=True,
+    #     read_only=True)
+    features = StringArrayField()
+    # TODO: add validation for features
+
+    class Meta:
+        model = ParkingSpace
+        fields = '__all__'
+        read_only_fields = ('host',)
+
+
+class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParkingSpace
+        fields = ('address', 'latitude', 'longitude', 'features', 'description',)
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    from accounts.serializers import CarMinimalSerializer
+
+    car_id = CarField(write_only=True)
+    car = CarMinimalSerializer(read_only=True)
     car_url = serializers.HyperlinkedRelatedField(
         source='car',
         read_only=True,
         view_name='car-detail')
 
-    parking_space = serializers.PrimaryKeyRelatedField(queryset=ParkingSpace.objects.all())
+    parking_space_id = serializers.PrimaryKeyRelatedField(queryset=ParkingSpace.objects.all(), write_only=True)
+    parking_space = ParkingSpaceMinimalSerializer(read_only=True)
     parking_space_url = serializers.HyperlinkedRelatedField(
         source='parking_space',
         read_only=True,
@@ -77,23 +105,3 @@ class ReservationSerializer(serializers.HyperlinkedModelSerializer):
         if value.customer != self.context['request'].user.customer:
             raise serializers.ValidationError("Current user must own specified car.")
         return value
-
-
-class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    fixedavailability_set = FixedAvailabilitySerializer(
-        many=True, read_only=True)
-    repeatingavailability_set = RepeatingAvailabilitySerializer(
-        many=True, read_only=True)
-    reservations = ReservationSerializer(
-        many=True,
-        read_only=True)
-    features = StringArrayField()
-    # TODO: add validation for features
-
-    class Meta:
-        model = ParkingSpace
-        fields = '__all__'
-        read_only_fields = ('host',)
-
-

@@ -3,7 +3,6 @@ from django.db import IntegrityError
 from rest_framework import serializers
 
 from .models import Customer, Host, Car
-from parking.serializers import ReservationSerializer
 
 
 class UserListSerializer(serializers.HyperlinkedModelSerializer):
@@ -104,7 +103,15 @@ class CarSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ('customer',)
 
 
+class CarMinimalSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Car
+        fields = ('make', 'model', 'license_plate',)
+
+
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+    from parking.serializers import ReservationSerializer
+
     user = UserDetailSerializer(read_only=True)
     car_set = CarSerializer(
         many=True,
