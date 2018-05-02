@@ -72,7 +72,7 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParkingSpace
-        fields = ('address', 'latitude', 'longitude', 'features', 'description',)
+        fields = ('id', 'address', 'latitude', 'longitude', 'features', 'description', 'size', 'available_spaces',)
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -94,8 +94,10 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        exclude = ('for_repeating',)
+        fields = '__all__'
+        # exclude = ('for_repeating',)
         read_only_fields = ('fixed_availability', 'repeating_availability',)
+        depth = 1
 
     def validate_car(self, value):
         """

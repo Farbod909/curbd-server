@@ -103,10 +103,10 @@ class CarSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ('customer',)
 
 
-class CarMinimalSerializer(serializers.HyperlinkedModelSerializer):
+class CarMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
-        fields = ('make', 'model', 'license_plate',)
+        fields = ('id', 'year', 'make', 'model', 'color', 'size', 'license_plate',)
 
 
 class CustomerSerializer(serializers.HyperlinkedModelSerializer):
