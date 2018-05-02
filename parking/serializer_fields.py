@@ -21,6 +21,8 @@ class CarField(PrimaryKeyRelatedField):
     owned by the current user
     """
 
+    source = 'car'
+
     def get_queryset(self):
         # TODO: limit queryset only if user is not admin
         from accounts.models import Car

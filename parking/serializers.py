@@ -78,8 +78,8 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):
     from accounts.serializers import CarMinimalSerializer
 
-    car_id = CarField(write_only=True)
-    car = CarMinimalSerializer(read_only=True)
+    car = CarField(write_only=True)
+    car_detail = CarMinimalSerializer(source='car', read_only=True)
     car_url = serializers.HyperlinkedRelatedField(
         source='car',
         read_only=True,
@@ -98,6 +98,14 @@ class ReservationSerializer(serializers.ModelSerializer):
         # exclude = ('for_repeating',)
         read_only_fields = ('fixed_availability', 'repeating_availability',)
         depth = 1
+
+    def create(self, validated_data):
+        print("&&&&&&&&&&&&&&&&&&")
+        print(validated_data)
+        print("&&&&&&&&&&&&&&&&&&")
+        car = validated_data.pop('car')
+        reservation = Reservation.objects.create(**validated_data, car=car)
+        return reservation
 
     def validate_car(self, value):
         """

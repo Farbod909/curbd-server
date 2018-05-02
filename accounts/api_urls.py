@@ -14,6 +14,10 @@ urlpatterns = [
     path('customers/', api_views.CustomerList.as_view(), name='customer-list'),
     path('customers/<int:pk>/', api_views.CustomerDetail.as_view(), name='customer-detail'),
     path('customers/self/', api_views.CustomerSelfDetail.as_view(), name='customer-self-detail'),
+    path('customers/self/reservations/current/', api_views.CustomerSelfReservationsCurrent.as_view(),
+         name='customer-self-reservations-current'),
+    path('customers/self/reservations/previous/', api_views.CustomerSelfReservationsPrevious.as_view(),
+         name='customer-self-reservations-previous'),
 
     path('hosts/', api_views.HostList.as_view(), name='host-list'),
     path('hosts/<int:pk>/', api_views.HostDetail.as_view(), name='host-detail'),

@@ -61,7 +61,7 @@ class ReservationList(generics.ListCreateAPIView):
     permission_classes = (IsCustomerOrReadOnly,)
 
     def perform_create(self, serializer):
-        parking_space = serializer.validated_data.pop('parking_space')
+        parking_space = serializer.validated_data.pop('parking_space_id')
         start_datetime = serializer.validated_data['start_datetime']
         end_datetime = serializer.validated_data['end_datetime']
 

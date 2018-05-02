@@ -4,6 +4,9 @@ from rest_framework import generics, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, ParseError
 
+import datetime
+import pytz
+
 from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import (
     IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
@@ -108,6 +111,26 @@ class CustomerSelfDetail(generics.RetrieveAPIView):
             return self.request.user.customer
         except Customer.DoesNotExist:
             raise Http404
+
+
+class CustomerSelfReservationsCurrent(generics.ListAPIView):
+    from parking.serializers import ReservationSerializer
+    serializer_class = ReservationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.request.user.customer.reservations().filter(
+            end_datetime__gte=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
+
+
+class CustomerSelfReservationsPrevious(generics.ListAPIView):
+    from parking.serializers import ReservationSerializer
+    serializer_class = ReservationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.request.user.customer.reservations().filter(
+            end_datetime__lt=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
 
 
 class HostList(generics.ListAPIView):
