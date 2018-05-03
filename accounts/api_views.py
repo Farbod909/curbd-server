@@ -12,6 +12,7 @@ from .api_permissions import (
     IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
     IsAdminOrIsTargetUser, IsStaffOrWriteOnly, CustomersCanCreateStaffCanRead)
 from .models import Customer, Host, Car
+from .pagination import PreviousReservationsCursorPagination
 from .serializers import (
     UserListSerializer, UserDetailSerializer,
     ChangePasswordSerializer,
@@ -127,10 +128,11 @@ class CustomerSelfReservationsPrevious(generics.ListAPIView):
     from parking.serializers import ReservationSerializer
     serializer_class = ReservationSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    pagination_class = PreviousReservationsCursorPagination
 
     def get_queryset(self):
         return self.request.user.customer.reservations().filter(
-            end_datetime__lt=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
+            end_datetime__lt=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('-start_datetime')
 
 
 class HostList(generics.ListAPIView):
