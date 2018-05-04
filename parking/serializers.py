@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .serializer_fields import StringArrayField, CarField, ParkingSpaceField
-from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation, Car
+from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 
 
 class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
@@ -70,6 +70,9 @@ class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
+    features = StringArrayField()
+    # TODO: add validation for features
+
     class Meta:
         model = ParkingSpace
         fields = ('id', 'address', 'latitude', 'longitude', 'features', 'description', 'size', 'available_spaces',)
