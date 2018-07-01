@@ -160,6 +160,18 @@ class HostSelfDetail(generics.RetrieveAPIView):
             raise Http404
 
 
+class HostSelfParkingSpaces(generics.ListAPIView):
+    from parking.serializers import ParkingSpaceMinimalSerializer
+    serializer_class = ParkingSpaceMinimalSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        try:
+            return self.request.user.host.parkingspace_set.all()
+        except Host.DoesNotExist:
+            raise Http404
+
+
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
