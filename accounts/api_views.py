@@ -161,8 +161,8 @@ class HostSelfDetail(generics.RetrieveAPIView):
 
 
 class HostSelfParkingSpaces(generics.ListAPIView):
-    from parking.serializers import ParkingSpaceMinimalSerializer
-    serializer_class = ParkingSpaceMinimalSerializer
+    from parking.serializers import ParkingSpaceSerializer
+    serializer_class = ParkingSpaceSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
