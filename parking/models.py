@@ -6,6 +6,7 @@ from django.utils import timezone
 
 import calendar
 from enum import Enum
+from datetime import datetime
 
 from accounts.models import Car, Host, VEHICLE_SIZES
 from .fields import ChoiceArrayField
@@ -77,7 +78,7 @@ class ParkingSpace(models.Model):
             Q(fixed_availability__parking_space=self) |
             Q(repeating_availability__parking_space=self))
 
-    def is_within_any_availability(self, start_datetime, end_datetime):
+    def is_available_between(self, start_datetime, end_datetime):
         """
         Determines whether or not a ParkingSpace instance has an availability
         that starts before start_datetime and ends after end_datetime
@@ -93,6 +94,7 @@ class ParkingSpace(models.Model):
         for ra in self.repeatingavailability_set.all():
             weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
             if start_datetime.weekday() == end_datetime.weekday() and weekdays[start_datetime.weekday()] in ra.repeating_days:
+                # if to_local_tz_of_client(start_datetime).time() >= to_local_tz_of_client(ra.start_datetime).time()
                 if start_datetime.time() >= ra.start_time and end_datetime.time() <= ra.end_time:
                     return True
         return False
@@ -107,7 +109,7 @@ class ParkingSpace(models.Model):
         """
         num = self.available_spaces
 
-        if not self.is_within_any_availability(start_datetime, end_datetime):
+        if not self.is_available_between(start_datetime, end_datetime):
             return 0
 
         for fa in self.fixedavailability_set.all():
