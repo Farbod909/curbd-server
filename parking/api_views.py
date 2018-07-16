@@ -1,5 +1,7 @@
 import calendar
+import datetime
 import dateutil.parser
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import generics
@@ -179,9 +181,19 @@ class ParkingSpaceFixedAvailabilities(generics.ListAPIView):
         return FixedAvailability.objects.filter(parking_space=self.kwargs['pk'])
 
 
-class ParkingSpaceReservations(generics.ListAPIView):
+class ParkingSpaceCurrentReservations(generics.ListAPIView):
     serializer_class = ReservationSerializer
     permission_classes = (IsHostOrReadOnly,)
 
     def get_queryset(self):
-        return ParkingSpace.objects.get(pk=self.kwargs['pk']).reservations()
+        return ParkingSpace.objects.get(pk=self.kwargs['pk']).reservations().filter(
+            end_datetime__gte=datetime.datetime.now()).order_by('start_datetime')
+
+
+class ParkingSpacePreviousReservations(generics.ListAPIView):
+    serializer_class = ReservationSerializer
+    permission_classes = (IsHostOrReadOnly,)
+
+    def get_queryset(self):
+        return ParkingSpace.objects.get(pk=self.kwargs['pk']).reservations().filter(
+            end_datetime__lt=datetime.datetime.now()).order_by('start_datetime')

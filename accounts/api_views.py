@@ -114,7 +114,7 @@ class CustomerSelfDetail(generics.RetrieveAPIView):
             raise Http404
 
 
-class CustomerSelfReservationsCurrent(generics.ListAPIView):
+class CustomerSelfCurrentReservations(generics.ListAPIView):
     from parking.serializers import ReservationSerializer
     serializer_class = ReservationSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -124,7 +124,7 @@ class CustomerSelfReservationsCurrent(generics.ListAPIView):
             end_datetime__gte=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
 
 
-class CustomerSelfReservationsPrevious(generics.ListAPIView):
+class CustomerSelfPreviousReservations(generics.ListAPIView):
     from parking.serializers import ReservationSerializer
     serializer_class = ReservationSerializer
     permission_classes = (permissions.IsAuthenticated,)

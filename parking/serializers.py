@@ -79,7 +79,7 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    from accounts.serializers import CarMinimalSerializer
+    from accounts.serializers import CarMinimalSerializer, UserDetailSerializer
 
     car = CarField(write_only=True)
     car_detail = CarMinimalSerializer(source='car', read_only=True)
@@ -87,6 +87,8 @@ class ReservationSerializer(serializers.ModelSerializer):
         source='car',
         read_only=True,
         view_name='car-detail')
+
+    reserver = UserDetailSerializer(source='car.customer.user', read_only=True)
 
     parking_space_id = serializers.PrimaryKeyRelatedField(queryset=ParkingSpace.objects.all(), write_only=True)
     parking_space = ParkingSpaceMinimalSerializer(read_only=True)
@@ -103,9 +105,6 @@ class ReservationSerializer(serializers.ModelSerializer):
         depth = 1
 
     def create(self, validated_data):
-        print("&&&&&&&&&&&&&&&&&&")
-        print(validated_data)
-        print("&&&&&&&&&&&&&&&&&&")
         car = validated_data.pop('car')
         reservation = Reservation.objects.create(**validated_data, car=car)
         return reservation

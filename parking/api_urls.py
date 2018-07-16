@@ -11,9 +11,10 @@ urlpatterns = [
          name='parkingspace-repeatingavailabilities'),
     path('spaces/<int:pk>/fixedavailabilities/', api_views.ParkingSpaceFixedAvailabilities.as_view(),
          name='parkingspace-fixedavailabilities'),
-    path('spaces/<int:pk>/reservations/', api_views.ParkingSpaceReservations.as_view(),
-         name='parkingspace-reservations'),
-
+    path('spaces/<int:pk>/reservations/current/', api_views.ParkingSpaceCurrentReservations.as_view(),
+         name='parkingspace-reservations-current'),
+    path('spaces/<int:pk>/reservations/previous/', api_views.ParkingSpacePreviousReservations.as_view(),
+         name='parkingspace-reservations-previous'),
 
     path('fixedavailabilities/', api_views.FixedAvailabilityList.as_view(), name='fixedavailability-list'),
     path('fixedavailabilities/<int:pk>/', api_views.FixedAvailabilityDetail.as_view(), name='fixedavailability-detail'),
