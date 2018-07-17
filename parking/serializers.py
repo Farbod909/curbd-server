@@ -75,7 +75,7 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ParkingSpace
-        fields = ('id', 'address', 'latitude', 'longitude', 'features', 'description', 'size', 'available_spaces',)
+        fields = ('id', 'name', 'latitude', 'longitude', 'features', 'instructions', 'size', 'available_spaces',)
 
 
 class ReservationSerializer(serializers.ModelSerializer):

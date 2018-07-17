@@ -18,6 +18,7 @@ class ParkingSpaceFeature(Enum):
     Covered = "Covered"
     Guarded = "Guarded"
     Surveillance = "Surveillance"
+    Gated = "Gated"
 
 
 class Weekday(Enum):
@@ -30,6 +31,19 @@ class Weekday(Enum):
     Saturday = 'Sat'
 
 
+class ParkingSpacePhysicalType(Enum):
+    Driveway = "Driveway"
+    Garage = "Garage"
+    Lot = "Lot"
+    Structure = "Structure"
+    Unpaved = "Unpaved"
+
+
+class ParkingSpaceLegalType(Enum):
+    Residential = "Residential"
+    Business = "Business"
+
+
 class ParkingSpace(models.Model):
 
     FEATURES = (
@@ -38,6 +52,20 @@ class ParkingSpace(models.Model):
         (ParkingSpaceFeature.Covered.value, "Covered"),
         (ParkingSpaceFeature.Guarded.value, "Guarded"),
         (ParkingSpaceFeature.Surveillance.value, "Surveillance"),
+        (ParkingSpaceFeature.Gated.value, "Gated"),
+    )
+
+    PHYSICAL_TYPES = (
+        (ParkingSpacePhysicalType.Driveway.value, "Driveway"),
+        (ParkingSpacePhysicalType.Garage.value, "Garage"),
+        (ParkingSpacePhysicalType.Lot.value, "Parking Lot"),
+        (ParkingSpacePhysicalType.Structure.value, "Parking Structure"),
+        (ParkingSpacePhysicalType.Unpaved.value, "Unpaved Lot"),
+    )
+
+    LEGAL_TYPES = (
+        (ParkingSpaceLegalType.Residential.value, "Residential"),
+        (ParkingSpaceLegalType.Business.value, "Business"),
     )
 
     host = models.ForeignKey(
@@ -69,6 +97,10 @@ class ParkingSpace(models.Model):
     instructions = models.CharField(
         max_length=100, blank=True,
         help_text="Any instructions that will help customers find the parking spot")
+
+    physical_type = models.CharField(max_length=50, choices=PHYSICAL_TYPES)
+
+    legal_type = models.CharField(max_length=50, choices=LEGAL_TYPES)
 
     # TODO: parking space photos
 
