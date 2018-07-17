@@ -63,13 +63,12 @@ class ParkingSpace(models.Model):
         blank=True,
         help_text="A list of features e.g. EV charging, Illuminated, etc.")
 
-    address = models.CharField(
-        "Street address",
+    name = models.CharField(
         max_length=50,
-        help_text="e.g. '123 Robertson'")
-    description = models.CharField(
+        help_text="e.g. '123 Robertson' or 'Sam's Diner'")
+    instructions = models.CharField(
         max_length=100, blank=True,
-        help_text="Any description that will help customers find the parking spot")
+        help_text="Any instructions that will help customers find the parking spot")
 
     # TODO: parking space photos
 
@@ -123,7 +122,7 @@ class ParkingSpace(models.Model):
         return num
 
     def __str__(self):
-        return self.address
+        return self.name
 
 
 class FixedAvailability(models.Model):
