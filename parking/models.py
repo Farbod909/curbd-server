@@ -102,6 +102,8 @@ class ParkingSpace(models.Model):
 
     legal_type = models.CharField(max_length=50, choices=LEGAL_TYPES)
 
+    is_active = models.BooleanField(default=False)
+
     # TODO: parking space photos
 
     def reservations(self):
