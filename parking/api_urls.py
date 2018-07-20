@@ -19,8 +19,8 @@ urlpatterns = [
     path('fixedavailabilities/', api_views.FixedAvailabilityList.as_view(), name='fixedavailability-list'),
     path('fixedavailabilities/<int:pk>/', api_views.FixedAvailabilityDetail.as_view(), name='fixedavailability-detail'),
 
-    path('repeatingavailablities/', api_views.RepeatingAvailabilityList.as_view(), name='repeatingavailability-list'),
-    path('repeatingavailablities/<int:pk>/', api_views.RepeatingAvailabilityDetail.as_view(), name='repeatingavailability-detail'),
+    path('repeatingavailabilities/', api_views.RepeatingAvailabilityList.as_view(), name='repeatingavailability-list'),
+    path('repeatingavailabilities/<int:pk>/', api_views.RepeatingAvailabilityDetail.as_view(), name='repeatingavailability-detail'),
 
     path('reservations/', api_views.ReservationList.as_view(), name='reservation-list'),
     path('reservations/<int:pk>/', api_views.ReservationDetail.as_view(), name='reservation-detail'),
