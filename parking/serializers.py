@@ -4,7 +4,7 @@ from .serializer_fields import StringArrayField, CarField, ParkingSpaceField
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 
 
-class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+class FixedAvailabilitySerializer(serializers.ModelSerializer):
     parking_space = ParkingSpaceField()
     reservation_set = serializers.HyperlinkedRelatedField(
         many=True,
@@ -29,7 +29,7 @@ class FixedAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
         return value
 
 
-class RepeatingAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+class RepeatingAvailabilitySerializer(serializers.ModelSerializer):
     parking_space = ParkingSpaceField()
     reservation_set = serializers.HyperlinkedRelatedField(
         many=True,

@@ -29,7 +29,7 @@ class CarField(PrimaryKeyRelatedField):
         return Car.objects.filter(customer__user=self.context['request'].user)  # TODO: determine an order_by
 
 
-class ParkingSpaceField(HyperlinkedRelatedField):
+class ParkingSpaceField(PrimaryKeyRelatedField):
     """
     Field that limits the queryset of the parking spaces
     to those owned by the current user

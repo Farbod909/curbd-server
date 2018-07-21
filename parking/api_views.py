@@ -181,6 +181,14 @@ class ParkingSpaceFixedAvailabilities(generics.ListAPIView):
         return FixedAvailability.objects.filter(parking_space=self.kwargs['pk'])
 
 
+class ParkingSpaceFixedAvailabilitiesFuture(generics.ListAPIView):
+    serializer_class = FixedAvailabilitySerializer
+    permission_classes = (IsHostOrReadOnly,)
+
+    def get_queryset(self):
+        return FixedAvailability.objects.filter(parking_space=self.kwargs['pk'], end_datetime__gte=datetime.datetime.now())
+
+
 class ParkingSpaceCurrentReservations(generics.ListAPIView):
     serializer_class = ReservationSerializer
     permission_classes = (IsHostOrReadOnly,)
