@@ -167,9 +167,10 @@ class FixedAvailability(models.Model):
     end_datetime = models.DateTimeField()
 
     pricing = models.PositiveIntegerField(
-        default=15,
-        help_text="The cost (in U.S. cents) of parking at the space for 5 minutes")
-    # This is the price the CUSTOMER pays (not what the HOST earns)
+        default=100,
+        help_text="The cost (in U.S. cents) of parking at the space for 1 hour")
+    # This is the price listed on the map and the amount the host earns
+    # Fees will be added to this.
 
     class Meta:
         verbose_name_plural = 'fixed availabilities'

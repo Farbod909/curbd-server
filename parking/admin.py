@@ -16,7 +16,7 @@ class FixedAvailabilityAdmin(admin.ModelAdmin):
     get_end.short_description = 'end'
 
     def get_pricing(self, obj):
-        return '$' + str((obj.pricing * 12)/100) + ' / hr'
+        return '$' + str(obj.pricing/100) + ' / hr'
     get_pricing.short_description = 'price'
 
 
@@ -24,7 +24,7 @@ class RepeatingAvailabilityAdmin(admin.ModelAdmin):
     list_display = ('parking_space', 'start_time', 'end_time', 'repeating_days', 'get_pricing')
 
     def get_pricing(self, obj):
-        return '$' + str((obj.pricing * 12)/100) + ' / hr'
+        return '$' + str(obj.pricing/100) + ' / hr'
     get_pricing.short_description = 'price'
 
 
