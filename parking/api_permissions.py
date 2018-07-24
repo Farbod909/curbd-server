@@ -17,7 +17,6 @@ class IsAdminOrIsParkingSpaceOwnerOrReadOnly(permissions.BasePermission):
 class IsHostOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow hosts to create parking spaces.
-    Only staff can read.
     """
     def has_permission(self, request, view):
 
@@ -26,6 +25,18 @@ class IsHostOrReadOnly(permissions.BasePermission):
                 return request.user.is_host()
             except AttributeError:  # 'AnonymousUser' object has no attribute 'is_host'
                 return False
+
+        return True
+
+
+class IsAuthenticatedOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow authenticated users to create parking spaces.
+    """
+    def has_permission(self, request, view):
+
+        if request.method == 'POST':
+            return request.user.is_authenticated
 
         return True
 

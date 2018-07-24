@@ -10,7 +10,8 @@ from rest_framework.exceptions import ValidationError
 from .api_permissions import (
     IsAdminOrIsParkingSpaceOwnerOrReadOnly, IsHostOrReadOnly,
     IsAdminOrIsOwnerOfParkingSpaceOfAvailabilityOrReadOnly,
-    IsAdminOrIsReservationOwnerOrReadOnly, IsCustomerOrReadOnly)
+    IsAdminOrIsReservationOwnerOrReadOnly, IsCustomerOrReadOnly,
+    IsAuthenticatedOrReadOnly)
 from .api_filters import LocationAndTimeAvailableFilter, MinVehicleSizeFilter
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
@@ -20,7 +21,7 @@ from accounts.models import Host
 class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (MinVehicleSizeFilter, LocationAndTimeAvailableFilter)
 
     def perform_create(self, serializer):
