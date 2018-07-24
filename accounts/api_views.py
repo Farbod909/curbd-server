@@ -172,6 +172,33 @@ class HostSelfParkingSpaces(generics.ListAPIView):
             raise Http404
 
 
+class HostSelfCurrentReservations(generics.ListAPIView):
+    from parking.serializers import ReservationSerializer
+    serializer_class = ReservationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        try:
+            return self.request.user.host.reservations().filter(
+                end_datetime__gte=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
+        except Host.DoesNotExist:
+            raise Http404
+
+
+class HostSelfPreviousReservations(generics.ListAPIView):
+    from parking.serializers import ReservationSerializer
+    serializer_class = ReservationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    pagination_class = PreviousReservationsCursorPagination
+
+    def get_queryset(self):
+        try:
+            return self.request.user.host.reservations().filter(
+                end_datetime__lt=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('-start_datetime')
+        except Host.DoesNotExist:
+            raise Http404
+
+
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer

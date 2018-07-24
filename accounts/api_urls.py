@@ -23,6 +23,10 @@ urlpatterns = [
     path('hosts/<int:pk>/', api_views.HostDetail.as_view(), name='host-detail'),
     path('hosts/self/', api_views.HostSelfDetail.as_view(), name='host-self-detail'),
     path('hosts/self/parkingspaces/', api_views.HostSelfParkingSpaces.as_view(), name='host-self-parkingspaces'),
+    path('hosts/self/reservations/current/', api_views.HostSelfCurrentReservations.as_view(),
+         name='host-self-reservations-current'),
+    path('hosts/self/reservations/previous/', api_views.HostSelfPreviousReservations.as_view(),
+         name='host-self-reservations-previous'),
 
     path('cars/', api_views.CarList.as_view(), name='car-list'),
     path('cars/<int:pk>/', api_views.CarDetail.as_view(), name='car-detail'),

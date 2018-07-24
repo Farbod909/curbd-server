@@ -79,6 +79,21 @@ class Customer(models.Model):
 class Host(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    host_since = models.DateField(auto_now_add=True)
+
+    def reservations(self):
+        from parking.models import ParkingSpace, Reservation
+        parking_space_set = ParkingSpace.objects.filter(host=self)
+
+        # TODO: figure out why self.parkingspace_set doesn't work
+
+        host_reservations = Reservation.objects.none()
+
+        for parking_space in parking_space_set:
+            # merge reservations of each parking space
+            host_reservations = host_reservations | parking_space.reservations()
+
+        return host_reservations
 
     def __str__(self):
         return "Host: %s %s" % (self.user.first_name, self.user.last_name)

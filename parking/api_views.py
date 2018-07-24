@@ -4,7 +4,7 @@ import dateutil.parser
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.exceptions import ValidationError
 
 from .api_permissions import (
@@ -14,16 +14,22 @@ from .api_permissions import (
 from .api_filters import LocationAndTimeAvailableFilter, MinVehicleSizeFilter
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
+from accounts.models import Host
 
 
 class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
-    permission_classes = (IsHostOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (MinVehicleSizeFilter, LocationAndTimeAvailableFilter)
 
     def perform_create(self, serializer):
-        serializer.validated_data['host'] = self.request.user.host
+        try:
+            serializer.validated_data['host'] = self.request.user.host
+        except Host.DoesNotExist:
+            host = Host.objects.create(user=self.request.user)
+            serializer.validated_data['host'] = host
+
         return super(ParkingSpaceList, self).perform_create(serializer)
 
 
