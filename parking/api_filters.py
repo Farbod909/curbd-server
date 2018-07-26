@@ -2,6 +2,8 @@ import dateutil.parser
 from django.db.models.query import Q
 from rest_framework import filters
 from rest_framework.exceptions import ValidationError
+from timezonefinder import TimezoneFinder
+import pytz
 
 
 class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
@@ -41,6 +43,29 @@ class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
 
             if start_datetime >= end_datetime:
                 raise ValidationError("end must be a later date than start")
+
+            tf = TimezoneFinder()
+
+            median_lat = (float(bottom_left_lat) + float(top_right_lat)) / 2
+            median_lng = (float(bottom_left_long) + float(top_right_long)) / 2
+
+            timezone_name = tf.timezone_at(lat=median_lat, lng=median_lng)
+
+            if timezone_name is None:
+                timezone_name = tf.closest_timezone_at(lng=median_lat, lat=median_lng)
+
+            if timezone_name is not None:
+                try:
+                    tz = pytz.timezone(timezone_name)
+                except pytz.exceptions.UnknownTimeZoneError:
+                    # fall back to the timezone that came with the request
+                    pass
+                else:
+                    naive_start_datetime = start_datetime.replace(tzinfo=None)
+                    naive_end_datetime = end_datetime.replace(tzinfo=None)
+
+                    start_datetime = tz.localize(naive_start_datetime)
+                    end_datetime = tz.localize(naive_end_datetime)
 
             # limit queryset to parking spaces with
             # vacant spots in the specified datetime range.
