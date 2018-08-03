@@ -6,12 +6,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from enum import Enum
+import uuid
 
 from .managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    id = models.UUIDField(editable=False, default=uuid.uuid4, primary_key=True)
     email = models.EmailField('email address', unique=True)
     first_name = models.CharField('first name', max_length=30, blank=False)
     last_name = models.CharField('last name', max_length=30, blank=False)
@@ -66,7 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Customer(models.Model):
 
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
 
     def reservations(self):
         from parking.models import Reservation
@@ -78,7 +80,7 @@ class Customer(models.Model):
 
 class Host(models.Model):
 
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
     host_since = models.DateField(auto_now_add=True)
 
     def reservations(self):

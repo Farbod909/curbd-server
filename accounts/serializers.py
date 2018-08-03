@@ -5,18 +5,12 @@ from rest_framework import serializers
 from .models import Customer, Host, Car
 
 
-class UserListSerializer(serializers.HyperlinkedModelSerializer):
+class UserListSerializer(serializers.ModelSerializer):
     """
     Standard User Serializer for displaying a list of users via GET.
     Allows creation of users via POST.
     """
-    id = serializers.IntegerField(read_only=True)
-
-    host_url = serializers.HyperlinkedRelatedField(source='host', view_name='host-detail', read_only=True)
-    customer_url = serializers.HyperlinkedRelatedField(source='customer', view_name='customer-detail', read_only=True)
-
-    host = serializers.PrimaryKeyRelatedField(read_only=True)
-    customer = serializers.PrimaryKeyRelatedField(read_only=True)
+    id = serializers.UUIDField(read_only=True)
 
     is_host = serializers.BooleanField()
 
@@ -38,18 +32,12 @@ class UserListSerializer(serializers.HyperlinkedModelSerializer):
         return user
 
 
-class UserDetailSerializer(serializers.HyperlinkedModelSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
     """
     Standard User Serializer that allows viewing detail of a User instance.
     Allows deletion and editing of user attributes via DELETE, PUT, and PATCH
     """
-    id = serializers.IntegerField(read_only=True)
-
-    host_url = serializers.HyperlinkedRelatedField(source='host', view_name='host-detail', read_only=True)
-    customer_url = serializers.HyperlinkedRelatedField(source='customer', view_name='customer-detail', read_only=True)
-
-    host = serializers.PrimaryKeyRelatedField(read_only=True)
-    customer = serializers.PrimaryKeyRelatedField(read_only=True)
+    id = serializers.UUIDField(read_only=True)
 
     is_host = serializers.BooleanField(help_text="un-marking this doesn't do anything. "
                                                  "You can set is_host to true, but "
@@ -109,7 +97,7 @@ class CarMinimalSerializer(serializers.ModelSerializer):
         fields = ('id', 'year', 'make', 'model', 'color', 'size', 'license_plate',)
 
 
-class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+class CustomerSerializer(serializers.ModelSerializer):
     from parking.serializers import ReservationSerializer
 
     user = UserDetailSerializer(read_only=True)
@@ -126,7 +114,7 @@ class CustomerSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
-class HostSerializer(serializers.HyperlinkedModelSerializer):
+class HostSerializer(serializers.ModelSerializer):
     user = UserDetailSerializer(read_only=True)
     parkingspace_set = serializers.HyperlinkedRelatedField(
         many=True,
