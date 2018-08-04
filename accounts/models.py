@@ -6,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from enum import Enum
-import uuid
 
 from .managers import UserManager
 
@@ -16,7 +15,6 @@ stripe.api_key = "sk_test_4QCFRtdqrQLuKnFizELDk4i6"
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-    id = models.UUIDField(editable=False, default=uuid.uuid4, primary_key=True)
     email = models.EmailField('email address', unique=True)
     first_name = models.CharField('first name', max_length=30, blank=False)
     last_name = models.CharField('last name', max_length=30, blank=False)
@@ -86,10 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Customer(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
-<<<<<<< HEAD
     stripe_customer_id = models.CharField(max_length=30, unique=True, null=False)
-=======
->>>>>>> a5f8b56fb14e3b9968153cbcfb49b38b6789e4ca
 
     def reservations(self):
         from parking.models import Reservation

@@ -37,7 +37,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     Standard User Serializer that allows viewing detail of a User instance.
     Allows deletion and editing of user attributes via DELETE, PUT, and PATCH
     """
-    id = serializers.UUIDField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
 
     is_host = serializers.BooleanField(help_text="un-marking this doesn't do anything. "
                                                  "You can set is_host to true, but "
