@@ -9,6 +9,9 @@ from enum import Enum
 
 from .managers import UserManager
 
+import stripe
+stripe.api_key = "sk_test_4QCFRtdqrQLuKnFizELDk4i6"
+
 
 class User(AbstractBaseUser, PermissionsMixin):
 
@@ -29,6 +32,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'user'
         verbose_name_plural = 'users'
+
+    def save(self, *args, **kwargs):
+        is_initial_save = False
+        if self.pk is None:
+            is_initial_save = True
+
+        super().save(*args, **kwargs)
+        if is_initial_save:
+            stripe_customer = stripe.Customer.create(
+                description="Customer for " + self.first_name + " " + self.last_name,
+                email=self.email,
+                metadata={'user_id': self.pk}
+            )
+            Customer.objects.create(user=self, stripe_customer_id=stripe_customer.id)
 
     def get_full_name(self):
         """
@@ -66,7 +83,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Customer(models.Model):
 
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
+    stripe_customer_id = models.CharField(max_length=30, unique=True, null=False)
 
     def reservations(self):
         from parking.models import Reservation
@@ -78,7 +96,7 @@ class Customer(models.Model):
 
 class Host(models.Model):
 
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
     host_since = models.DateField(auto_now_add=True)
 
     def reservations(self):

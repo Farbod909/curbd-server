@@ -11,4 +11,5 @@ urlpatterns = [
     path('auth/token', drf_views.obtain_auth_token, name='auth'),
     path('accounts/', include('accounts.api_urls')),
     path('parking/', include('parking.api_urls')),
+    path('payment/', include('payment.api_urls')),
 ]
