@@ -255,7 +255,7 @@ class FixedAvailability(models.Model):
         self.check_end_comes_after_start()
         self.check_ends_after_current_time()
         self.check_overlap_with_fixed_availabilities()
-        self.check_overlap_with_repeating_availabilities()
+        # self.check_overlap_with_repeating_availabilities()
 
         super(FixedAvailability, self).save(*args, **kwargs)
 
@@ -343,7 +343,7 @@ class RepeatingAvailability(models.Model):
 
     def save(self, *args, **kwargs):
         self.check_end_comes_after_start()
-        self.check_overlap_with_fixed_availabilities()
+        # self.check_overlap_with_fixed_availabilities()
         self.check_overlap_with_repeating_availabilities()
 
         super(RepeatingAvailability, self).save(*args, **kwargs)
