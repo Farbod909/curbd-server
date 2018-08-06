@@ -381,6 +381,13 @@ class Reservation(models.Model):
     repeating_availability = models.ForeignKey(
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
 
+    paid_out = models.BooleanField(default=False, null=False)
+    models.FloatField()
+
+    # in US cents
+    cost = models.PositiveIntegerField(editable=False, null=False)
+    host_income = models.PositiveIntegerField(editable=False, null=False)
+
     def parking_space(self):
         return ParkingSpace.objects.filter(
             Q(fixedavailability__reservation=self) |

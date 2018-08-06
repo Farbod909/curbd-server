@@ -81,6 +81,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
 
+class Address(models.Model):
+    street = models.CharField(max_length=50)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    code = models.CharField(max_length=15)
+
+
 class Customer(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
@@ -98,6 +105,12 @@ class Host(models.Model):
 
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
     host_since = models.DateField(auto_now_add=True)
+
+    venmo_email = models.EmailField(unique=True, null=True)
+    venmo_phone = models.CharField(max_length=15, unique=True, null=True)
+
+    date_of_birth = models.DateField(null=True)
+    address = models.ForeignKey(Address, null=True, on_delete=models.CASCADE)
 
     def reservations(self):
         from parking.models import ParkingSpace, Reservation
