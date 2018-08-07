@@ -381,12 +381,14 @@ class Reservation(models.Model):
     repeating_availability = models.ForeignKey(
         RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
 
+    cancelled = models.BooleanField(default=False, null=False)
+
     paid_out = models.BooleanField(default=False, null=False)
     models.FloatField()
 
     # in US cents
-    cost = models.PositiveIntegerField(editable=False, null=False)
-    host_income = models.PositiveIntegerField(editable=False, null=False)
+    cost = models.PositiveIntegerField(null=False)
+    host_income = models.PositiveIntegerField(null=False)
 
     def parking_space(self):
         return ParkingSpace.objects.filter(
@@ -443,6 +445,8 @@ class Reservation(models.Model):
         # make sure reservation start and end time are within
         # start and end time of its availability
         self.check_reservation_overlap()
+
+        self.host_income = (self.cost * (1 - 0.029) - 30) * 0.8
 
         super(Reservation, self).save(*args, **kwargs)
 
