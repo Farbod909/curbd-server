@@ -87,3 +87,13 @@ class MinVehicleSizeFilter(filters.BaseFilterBackend):
             queryset = queryset.filter(size__gte=min_vehicle_size)
 
         return queryset
+
+
+class IsActiveFilter(filters.BaseFilterBackend):
+    """
+    Filter the returned parking spaces to make sure they are active
+    """
+
+    def filter_queryset(self, request, queryset, view):
+        queryset = queryset.filter(is_active=True)
+        return queryset

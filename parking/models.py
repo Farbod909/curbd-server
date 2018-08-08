@@ -288,10 +288,11 @@ class RepeatingAvailability(models.Model):
     parking_space = models.ForeignKey(
         ParkingSpace, on_delete=models.CASCADE)
 
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
     repeating_days = ChoiceArrayField(
         models.CharField(max_length=15, choices=DAYS_OF_THE_WEEK))
+    all_day = models.BooleanField(default=False, null=False)
 
     pricing = models.PositiveIntegerField(
         default=15,
@@ -341,10 +342,16 @@ class RepeatingAvailability(models.Model):
                 if (self.start_time <= repeating_availability.end_time) and (self.end_time >= repeating_availability.start_time):
                     raise ValidationError("Overlaps with other availability")
 
+    def check_is_all_day_or_has_start_and_end_time(self):
+        if not self.all_day:
+            if self.start_time is None or self.end_time is None:
+                raise ValidationError("Must be either all_day or have a start and end time")
+
     def save(self, *args, **kwargs):
         self.check_end_comes_after_start()
         # self.check_overlap_with_fixed_availabilities()
         self.check_overlap_with_repeating_availabilities()
+        self.check_is_all_day_or_has_start_and_end_time()
 
         super(RepeatingAvailability, self).save(*args, **kwargs)
 
@@ -389,6 +396,7 @@ class Reservation(models.Model):
     # in US cents
     cost = models.PositiveIntegerField(null=False)
     host_income = models.PositiveIntegerField(null=False)
+    payment_method_info = models.CharField(max_length=30, null=True)
 
     def parking_space(self):
         return ParkingSpace.objects.filter(
