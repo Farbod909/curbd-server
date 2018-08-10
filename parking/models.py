@@ -127,7 +127,8 @@ class ParkingSpace(models.Model):
         for ra in self.repeatingavailability_set.all():
             weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
             if start_datetime.weekday() == end_datetime.weekday() and weekdays[start_datetime.weekday()] in ra.repeating_days:
-                # if to_local_tz_of_client(start_datetime).time() >= to_local_tz_of_client(ra.start_datetime).time()
+                if ra.all_day:
+                    return True
                 if start_datetime.time() >= ra.start_time and end_datetime.time() <= ra.end_time:
                     return True
         return False
@@ -303,8 +304,9 @@ class RepeatingAvailability(models.Model):
         verbose_name_plural = 'repeating availabilities'
 
     def check_end_comes_after_start(self):
-        if self.start_time > self.end_time:
-            raise ValidationError("Availability end time must come after start time")
+        if not self.all_day:
+            if self.start_time > self.end_time:
+                raise ValidationError("Availability end time must come after start time")
 
     def check_overlap_with_fixed_availabilities(self):
         fixed_availabilities = FixedAvailability.objects.filter(parking_space=self.parking_space)
@@ -339,6 +341,8 @@ class RepeatingAvailability(models.Model):
 
         for repeating_availability in repeating_availabilities:
             if list(set(self.repeating_days) & set(repeating_availability.repeating_days)):
+                if self.all_day or repeating_availability.all_day:
+                    raise ValidationError("Overlaps with other availability")
                 if (self.start_time <= repeating_availability.end_time) and (self.end_time >= repeating_availability.start_time):
                     raise ValidationError("Overlaps with other availability")
 

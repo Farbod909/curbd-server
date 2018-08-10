@@ -120,15 +120,15 @@ class ParkingSpaceAvailability(generics.RetrieveAPIView):
         start_datetime_iso = self.request.query_params['start']
         end_datetime_iso = self.request.query_params['end']
 
+        # TODO: convert this to local time zone similar to parking space search filter
         start_datetime = dateutil.parser.parse(start_datetime_iso)
         end_datetime = dateutil.parser.parse(end_datetime_iso)
 
         day_of_week = calendar.day_name[start_datetime.weekday()][:3]
         try:
             RepeatingAvailability.objects.get(
-                Q(parking_space=parking_space),
-                Q(start_time__lte=start_datetime.time()),
-                Q(end_time__gte=end_datetime.time()),
+                Q(parking_space=parking_space) &
+                (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
                 Q(repeating_days__contains=[day_of_week])
             )
         except ObjectDoesNotExist:
@@ -156,9 +156,8 @@ class ParkingSpaceAvailability(generics.RetrieveAPIView):
         day_of_week = calendar.day_name[start_datetime.weekday()][:3]
         try:
             return RepeatingAvailability.objects.get(
-                Q(parking_space=parking_space),
-                Q(start_time__lte=start_datetime.time()),
-                Q(end_time__gte=end_datetime.time()),
+                Q(parking_space=parking_space) &
+                (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
                 Q(repeating_days__contains=[day_of_week])
             )
         except ObjectDoesNotExist:

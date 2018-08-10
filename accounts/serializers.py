@@ -4,6 +4,9 @@ from rest_framework import serializers
 
 from .models import Customer, Host, Vehicle
 
+import stripe
+stripe.api_key = "sk_test_4QCFRtdqrQLuKnFizELDk4i6"
+
 
 class UserListSerializer(serializers.ModelSerializer):
     """
@@ -26,7 +29,12 @@ class UserListSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.create(**validated_data)
         user.set_password(password)
         user.save()
-        Customer.objects.create(user=user)
+        # stripe_customer = stripe.Customer.create(
+        #     description="Customer for " + user.first_name + " " + user.last_name,
+        #     email=user.email,
+        #     metadata={'user_id': user.pk}
+        # )
+        # Customer.objects.create(user=user, stripe_customer_id=stripe_customer.id)
         if is_host:
             Host.objects.create(user=user)
         return user
