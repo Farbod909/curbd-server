@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .serializer_fields import StringArrayField, CarField, ParkingSpaceField
+from .serializer_fields import StringArrayField, VehicleField, ParkingSpaceField
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 
 
@@ -79,16 +79,16 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    from accounts.serializers import CarMinimalSerializer, UserDetailSerializer
+    from accounts.serializers import VehicleMinimalSerializer, UserDetailSerializer
 
-    car = CarField(write_only=True)
-    car_detail = CarMinimalSerializer(source='car', read_only=True)
-    car_url = serializers.HyperlinkedRelatedField(
-        source='car',
+    vehicle = VehicleField(write_only=True)
+    vehicle_detail = VehicleMinimalSerializer(source='vehicle', read_only=True)
+    vehicle_url = serializers.HyperlinkedRelatedField(
+        source='vehicle',
         read_only=True,
-        view_name='car-detail')
+        view_name='vehicle-detail')
 
-    reserver = UserDetailSerializer(source='car.customer.user', read_only=True)
+    reserver = UserDetailSerializer(source='vehicle.customer.user', read_only=True)
 
     parking_space_id = serializers.PrimaryKeyRelatedField(queryset=ParkingSpace.objects.all(), write_only=True)
     parking_space = ParkingSpaceMinimalSerializer(read_only=True)
@@ -105,15 +105,15 @@ class ReservationSerializer(serializers.ModelSerializer):
         depth = 1
 
     def create(self, validated_data):
-        car = validated_data.pop('car')
-        reservation = Reservation.objects.create(**validated_data, car=car)
+        vehicle = validated_data.pop('vehicle')
+        reservation = Reservation.objects.create(**validated_data, vehicle=vehicle)
         return reservation
 
-    def validate_car(self, value):
+    def validate_vehicle(self, value):
         """
-        ensure that the user creating a reservation owns the car specified
-        in the car field.
+        ensure that the user creating a reservation owns the vehicle specified
+        in the vehicle field.
         """
         if value.customer != self.context['request'].user.customer:
-            raise serializers.ValidationError("Current user must own specified car.")
+            raise serializers.ValidationError("Current user must own specified vehicle.")
         return value

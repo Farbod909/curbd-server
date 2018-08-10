@@ -11,7 +11,7 @@ def api_root(request, format=None):
         'users': reverse('user-list', request=request, format=format),
         'customers': reverse('customer-list', request=request, format=format),
         'hosts': reverse('host-list', request=request, format=format),
-        'cars': reverse('car-list', request=request, format=format),
+        'vehicles': reverse('vehicle-list', request=request, format=format),
         'parkingspaces': reverse('parkingspace-list', request=request, format=format),
         'fixedavailabilities': reverse('fixedavailability-list', request=request, format=format),
         'repeatingavailabilities': reverse('repeatingavailability-list', request=request, format=format),

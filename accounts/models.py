@@ -95,7 +95,7 @@ class Customer(models.Model):
 
     def reservations(self):
         from parking.models import Reservation
-        return Reservation.objects.filter(car__customer=self)
+        return Reservation.objects.filter(vehicle__customer=self)
 
     def __str__(self):
         return "Customer: %s %s" % (self.user.first_name, self.user.last_name)
@@ -147,7 +147,7 @@ VEHICLE_SIZES = (
 )
 
 
-class Car(models.Model):
+class Vehicle(models.Model):
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
@@ -159,5 +159,5 @@ class Car(models.Model):
     license_plate = models.CharField(max_length=15, unique=True)
 
     def __str__(self):
-        return "Car: %s - %s %s %s %s" % (
+        return "Vehicle: %s - %s %s %s %s" % (
             self.license_plate, self.color, self.year, self.make, self.model)

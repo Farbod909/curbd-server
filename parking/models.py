@@ -8,7 +8,7 @@ import calendar
 from enum import Enum
 from datetime import datetime
 
-from accounts.models import Car, Host, VEHICLE_SIZES
+from accounts.models import Vehicle, Host, VEHICLE_SIZES
 from .fields import ChoiceArrayField
 
 
@@ -78,7 +78,7 @@ class ParkingSpace(models.Model):
     available_spaces = models.PositiveIntegerField(
         "Number of spaces available",
         help_text="NOTE: Each individual parking space should be positioned such that "
-                  "each car can arrive and leave independent of other cars currently "
+                  "each vehicle can arrive and leave independent of other vehicles currently "
                   "parked at that location. If this is not possible, please enter "
                   "'1' as the number of spaces available.",
         default=1)
@@ -372,9 +372,9 @@ class RepeatingAvailability(models.Model):
 
 
 class Reservation(models.Model):
-    from accounts.models import Car
+    from accounts.models import Vehicle
 
-    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
 
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
@@ -468,7 +468,7 @@ class Reservation(models.Model):
             parking_space = self.fixed_availability.parking_space
 
         return "%s @ %s: %s - %s" % (
-                self.car,
+                self.vehicle,
                 parking_space,
                 timezone.localtime(self.start_datetime).strftime("%H:%M on %b %d, %Y"),
                 timezone.localtime(self.end_datetime).strftime("%H:%M on %b %d, %Y"))

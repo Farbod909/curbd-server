@@ -9,14 +9,14 @@ import pytz
 
 from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import (
-    IsAdminOrIsCarOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
+    IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
     IsAdminOrIsTargetUser, IsStaffOrWriteOnly, CustomersCanCreateStaffCanRead)
-from .models import Customer, Host, Car
+from .models import Customer, Host, Vehicle
 from .pagination import PreviousReservationsCursorPagination
 from .serializers import (
     UserListSerializer, UserDetailSerializer,
     ChangePasswordSerializer,
-    CustomerSerializer, HostSerializer, CarSerializer)
+    CustomerSerializer, HostSerializer, VehicleSerializer)
 
 
 class UserList(generics.ListCreateAPIView):
@@ -199,18 +199,18 @@ class HostSelfPreviousReservations(generics.ListAPIView):
             raise Http404
 
 
-class CarList(generics.ListCreateAPIView):
-    queryset = Car.objects.all()
-    serializer_class = CarSerializer
+class VehicleList(generics.ListCreateAPIView):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
     permission_classes = (CustomersCanCreateStaffCanRead,)
 
     def perform_create(self, serializer):
         serializer.validated_data['customer'] = self.request.user.customer
-        return super(CarList, self).perform_create(serializer)
+        return super(VehicleList, self).perform_create(serializer)
 
 
-class CarDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Car.objects.all()
-    serializer_class = CarSerializer
-    permission_classes = (IsAdminOrIsCarOwnerOrIfIsStaffReadOnly,)
+class VehicleDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+    permission_classes = (IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly,)
 

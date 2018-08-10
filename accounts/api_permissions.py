@@ -1,9 +1,9 @@
 from rest_framework import permissions
 
 
-class IsAdminOrIsCarOwnerOrIfIsStaffReadOnly(permissions.BasePermission):
+class IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly(permissions.BasePermission):
     """
-    Custom permission to only allow admins or the car owner to edit.
+    Custom permission to only allow admins or the vehicle owner to edit.
     Also allows staff to read.
     """
     def has_object_permission(self, request, view, obj):
@@ -46,8 +46,8 @@ class IsStaffOrWriteOnly(permissions.BasePermission):
 
 class CustomersCanCreateStaffCanRead(permissions.BasePermission):
     """
-    Custom permission to only allow customers to create cars and
-    only staff can read list of cars
+    Custom permission to only allow customers to create vehicles and
+    only staff can read list of vehicles
     """
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:

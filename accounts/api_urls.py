@@ -28,6 +28,6 @@ urlpatterns = [
     path('hosts/self/reservations/previous/', api_views.HostSelfPreviousReservations.as_view(),
          name='host-self-reservations-previous'),
 
-    path('cars/', api_views.CarList.as_view(), name='car-list'),
-    path('cars/<int:pk>/', api_views.CarDetail.as_view(), name='car-detail'),
+    path('vehicles/', api_views.VehicleList.as_view(), name='vehicle-list'),
+    path('vehicles/<int:pk>/', api_views.VehicleDetail.as_view(), name='vehicle-detail'),
 ]

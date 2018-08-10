@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from rest_framework import serializers
 
-from .models import Customer, Host, Car
+from .models import Customer, Host, Vehicle
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -76,24 +76,24 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
-class CarSerializer(serializers.HyperlinkedModelSerializer):
+class VehicleSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
-        view_name='car-detail')
+        view_name='vehicle-detail')
     reservation_set = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='reservation-detail',
         read_only=True)
 
     class Meta:
-        model = Car
+        model = Vehicle
         fields = '__all__'
         read_only_fields = ('customer',)
 
 
-class CarMinimalSerializer(serializers.ModelSerializer):
+class VehicleMinimalSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Car
+        model = Vehicle
         fields = ('id', 'year', 'make', 'model', 'color', 'size', 'license_plate',)
 
 
@@ -101,9 +101,9 @@ class CustomerSerializer(serializers.ModelSerializer):
     from parking.serializers import ReservationSerializer
 
     user = UserDetailSerializer(read_only=True)
-    car_set = CarSerializer(
+    vehicle_set = VehicleSerializer(
         many=True,
-        # view_name='car-detail',
+        # view_name='vehicle-detail',
         read_only=True)
     reservations = ReservationSerializer(
         many=True,

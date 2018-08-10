@@ -64,7 +64,7 @@ class IsAdminOrIsReservationOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return request.user.is_superuser or obj.car.customer.user == request.user
+        return request.user.is_superuser or obj.vehicle.customer.user == request.user
 
 
 class IsCustomerOrReadOnly(permissions.BasePermission):

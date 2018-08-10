@@ -22,7 +22,7 @@ class ParkingSpaceList(generics.ListCreateAPIView):
     queryset = ParkingSpace.objects.all()
     serializer_class = ParkingSpaceSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (IsActiveFilter, LocationAndTimeAvailableFilter, MinVehicleSizeFilter)
+    filter_backends = (IsActiveFilter, MinVehicleSizeFilter, LocationAndTimeAvailableFilter)
 
     def perform_create(self, serializer):
         try:

@@ -15,18 +15,18 @@ class StringArrayField(ListField):
         return super().to_internal_value(data)
 
 
-class CarField(PrimaryKeyRelatedField):
+class VehicleField(PrimaryKeyRelatedField):
     """
-    Field that limits the queryset of the cars to the cars
+    Field that limits the queryset of the vehicles to the vehicles
     owned by the current user
     """
 
-    source = 'car'
+    source = 'vehicle'
 
     def get_queryset(self):
         # TODO: limit queryset only if user is not admin
-        from accounts.models import Car
-        return Car.objects.filter(customer__user=self.context['request'].user)  # TODO: determine an order_by
+        from accounts.models import Vehicle
+        return Vehicle.objects.filter(customer__user=self.context['request'].user)  # TODO: determine an order_by
 
 
 class ParkingSpaceField(PrimaryKeyRelatedField):
