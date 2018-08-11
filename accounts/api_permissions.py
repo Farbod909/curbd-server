@@ -71,3 +71,12 @@ class StaffCanReadAndHostsCanWrite(permissions.BasePermission):
             return request.user.is_host()
 
         return True
+
+
+class IsHost(permissions.BasePermission):
+    """
+    Custom permission to only allow Hosts to perform a certain action
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_host()

@@ -5,6 +5,7 @@ from django.db.models.query import Q
 from rest_framework import serializers
 
 import datetime
+import pytz
 
 from .models import Customer, Host, Vehicle
 
@@ -163,5 +164,5 @@ class HostSerializer(serializers.ModelSerializer):
             Q(fixed_availability__parking_space__host=host) |
             Q(repeating_availability__parking_space__host=host)).filter(
             paid_out=False).filter(
-            end_datetime__lt=datetime.datetime.now()).aggregate(Sum('host_income'))
+            end_datetime__lt=datetime.datetime.now(pytz.utc)).aggregate(Sum('host_income'))
         return earnings['host_income__sum'] or 0

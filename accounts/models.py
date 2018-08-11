@@ -4,6 +4,11 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Sum
+from django.db.models.query import Q
+
+import datetime
+import pytz
 
 from enum import Enum
 
@@ -137,8 +142,20 @@ class Host(models.Model):
 
         return host_reservations
 
+    @property
+    def available_balance(self):
+        from parking.models import Reservation
+
+        earnings = Reservation.objects.filter(
+            Q(fixed_availability__parking_space__host=self) |
+            Q(repeating_availability__parking_space__host=self)).filter(
+            paid_out=False).filter(
+            end_datetime__lt=datetime.datetime.now(pytz.utc)).aggregate(Sum('host_income'))
+        return earnings['host_income__sum'] or 0
+
     def save(self, *args, **kwargs):
-        self.venmo_email = self.user.email
+        if self.venmo_email is None:
+            self.venmo_email = self.user.email
         super(Host, self).save()
 
     def __str__(self):

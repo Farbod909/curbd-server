@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import permissions
 
+from accounts.api_permissions import IsHost
+
 import stripe
 stripe.api_key = "sk_test_4QCFRtdqrQLuKnFizELDk4i6"
 
@@ -40,3 +42,19 @@ def charge(request):
         return Response(status=402)
     else:
         return Response(status=200)
+
+
+@api_view(['POST'])
+@permission_classes((IsHost,))
+def venmo_payout(request):
+    amount = request.user.host.available_balance
+    venmo_email = request.data.get('venmo_email', request.user.host.venmo_email)
+
+    if request.user.host.venmo_email != venmo_email:
+        request.user.host.venmo_email = venmo_email
+        print(request.user.host.venmo_email)
+        request.user.host.save()
+
+    return Response("Success", 200)
+
+    # TODO: send email with venmo_email and amount to venmo payout email
