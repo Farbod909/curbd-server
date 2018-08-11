@@ -137,6 +137,10 @@ class Host(models.Model):
 
         return host_reservations
 
+    def save(self, *args, **kwargs):
+        self.venmo_email = self.user.email
+        super(Host, self).save()
+
     def __str__(self):
         return "Host: %s %s" % (self.user.first_name, self.user.last_name)
 
