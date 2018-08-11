@@ -1,6 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.db.models import Sum
+from django.db.models.query import Q
 from rest_framework import serializers
+
+import datetime
 
 from .models import Customer, Host, Vehicle
 
@@ -29,12 +33,6 @@ class UserListSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.create(**validated_data)
         user.set_password(password)
         user.save()
-        # stripe_customer = stripe.Customer.create(
-        #     description="Customer for " + user.first_name + " " + user.last_name,
-        #     email=user.email,
-        #     metadata={'user_id': user.pk}
-        # )
-        # Customer.objects.create(user=user, stripe_customer_id=stripe_customer.id)
         if is_host:
             Host.objects.create(user=user)
         return user
@@ -128,6 +126,42 @@ class HostSerializer(serializers.ModelSerializer):
         many=True,
         view_name='parkingspace-detail',
         read_only=True)
+
+    # sum of all of host's income from past and future reservations
+    total_earnings = serializers.SerializerMethodField()
+
+    # sum of all of host's income that has not been paid out yet
+    current_balance = serializers.SerializerMethodField()
+
+    # sum of all of host's income that has not been paid out and is available for pay out
+    available_balance = serializers.SerializerMethodField()
+
+    def get_total_earnings(self, host):
+        from parking.models import Reservation
+
+        earnings = Reservation.objects.filter(
+            Q(fixed_availability__parking_space__host=host) |
+            Q(repeating_availability__parking_space__host=host)).aggregate(Sum('host_income'))
+        return earnings['host_income__sum'] or 0
+
+    def get_current_balance(self, host):
+        from parking.models import Reservation
+
+        earnings = Reservation.objects.filter(
+            Q(fixed_availability__parking_space__host=host) |
+            Q(repeating_availability__parking_space__host=host)).filter(paid_out=False).aggregate(Sum('host_income'))
+        return earnings['host_income__sum'] or 0
+
+    def get_available_balance(self, host):
+        from parking.models import Reservation
+
+        earnings = Reservation.objects.filter(
+            Q(fixed_availability__parking_space__host=host) |
+            Q(repeating_availability__parking_space__host=host)).filter(
+            paid_out=False).filter(
+            end_datetime__lt=datetime.datetime.now()).aggregate(Sum('host_income'))
+        return earnings['host_income__sum'] or 0
+
 
     class Meta:
         model = Host

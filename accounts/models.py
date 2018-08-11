@@ -82,7 +82,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Address(models.Model):
-    street = models.CharField(max_length=50)
+    address1 = models.CharField(max_length=50)
+    address2 = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     code = models.CharField(max_length=15)
@@ -110,7 +111,7 @@ class Host(models.Model):
     venmo_phone = models.CharField(max_length=15, unique=True, null=True)
 
     date_of_birth = models.DateField(null=True)
-    address = models.ForeignKey(Address, null=True, on_delete=models.CASCADE)
+    address = models.OneToOneField(Address, null=True, on_delete=models.PROTECT)
 
     def reservations(self):
         from parking.models import ParkingSpace, Reservation
