@@ -83,10 +83,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Address(models.Model):
     address1 = models.CharField(max_length=50)
-    address2 = models.CharField(max_length=50)
+    address2 = models.CharField(max_length=50, null=True, blank=True)
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
     code = models.CharField(max_length=15)
+
+    class Meta:
+        verbose_name_plural = "addresses"
+
+    def __str__(self):
+        address_string = self.address1
+        if self.address2 is not None:
+            address_string += ", " + self.address2
+
+        return address_string + ", {}, {} {}".format(self.city, self.state, self.code)
 
 
 class Customer(models.Model):
@@ -107,11 +117,11 @@ class Host(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
     host_since = models.DateField(auto_now_add=True)
 
-    venmo_email = models.EmailField(unique=True, null=True)
-    venmo_phone = models.CharField(max_length=15, unique=True, null=True)
+    venmo_email = models.EmailField(unique=True, null=True, blank=True)
+    venmo_phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
 
-    date_of_birth = models.DateField(null=True)
-    address = models.OneToOneField(Address, null=True, on_delete=models.PROTECT)
+    date_of_birth = models.DateField(null=True, blank=True)
+    address = models.OneToOneField(Address, null=True, blank=True, on_delete=models.PROTECT)
 
     def reservations(self):
         from parking.models import ParkingSpace, Reservation

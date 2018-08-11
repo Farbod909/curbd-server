@@ -136,6 +136,10 @@ class HostSerializer(serializers.ModelSerializer):
     # sum of all of host's income that has not been paid out and is available for pay out
     available_balance = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Host
+        fields = '__all__'
+
     def get_total_earnings(self, host):
         from parking.models import Reservation
 
@@ -161,9 +165,3 @@ class HostSerializer(serializers.ModelSerializer):
             paid_out=False).filter(
             end_datetime__lt=datetime.datetime.now()).aggregate(Sum('host_income'))
         return earnings['host_income__sum'] or 0
-
-
-    class Meta:
-        model = Host
-        fields = '__all__'
-

@@ -57,3 +57,17 @@ class CustomersCanCreateStaffCanRead(permissions.BasePermission):
             return request.user.is_customer()
         except AttributeError:  # 'AnonymousUser' object has no attribute 'is_customer'
             return False
+
+
+class StaffCanReadAndHostsCanWrite(permissions.BasePermission):
+    """
+    Custom permission to only allow staff members to GET list of addresses
+    and only hosts can create an address
+    """
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_staff
+        elif request.method == 'POST':
+            return request.user.is_host()
+
+        return True

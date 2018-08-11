@@ -27,6 +27,7 @@ urlpatterns = [
          name='host-self-reservations-current'),
     path('hosts/self/reservations/previous/', api_views.HostSelfPreviousReservations.as_view(),
          name='host-self-reservations-previous'),
+    path('hosts/self/verify/', api_views.HostSelfUpdateVerificationInfo.as_view(), name='host-self-verify'),
 
     path('vehicles/', api_views.VehicleList.as_view(), name='vehicle-list'),
     path('vehicles/<int:pk>/', api_views.VehicleDetail.as_view(), name='vehicle-detail'),
