@@ -4,6 +4,7 @@ import dateutil.parser
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import generics, permissions
 from rest_framework.exceptions import ValidationError
 
@@ -15,7 +16,7 @@ from .api_permissions import (
 from .api_filters import IsActiveFilter, LocationAndTimeAvailableFilter, MinVehicleSizeFilter
 from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
 from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
-from accounts.models import Host
+from accounts.models import Host, Address
 
 
 class ParkingSpaceList(generics.ListCreateAPIView):
@@ -25,6 +26,23 @@ class ParkingSpaceList(generics.ListCreateAPIView):
     filter_backends = (IsActiveFilter, MinVehicleSizeFilter, LocationAndTimeAvailableFilter)
 
     def perform_create(self, serializer):
+
+        try:
+            address1 = self.request.data['address1']
+            address2 = self.request.data.get('address2', None)
+            city = self.request.data['city']
+            state = self.request.data['state']
+            code = self.request.data['code']
+        except MultiValueDictKeyError:
+            raise ValidationError("Incomplete address fields")
+
+        try:
+            address = Address.objects.get(address1=address1, address2=address2, city=city, state=state, code=code)
+        except Address.DoesNotExist:
+            address = Address.objects.create(address1=address1, address2=address2, city=city, state=state, code=code)
+
+        serializer.validated_data['address'] = address
+
         try:
             serializer.validated_data['host'] = self.request.user.host
         except Host.DoesNotExist:

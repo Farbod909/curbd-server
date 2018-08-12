@@ -6,9 +6,8 @@ from django.utils import timezone
 
 import calendar
 from enum import Enum
-from datetime import datetime
 
-from accounts.models import Vehicle, Host, VEHICLE_SIZES
+from accounts.models import Vehicle, Host, Address, VEHICLE_SIZES
 from .fields import ChoiceArrayField
 
 
@@ -74,6 +73,8 @@ class ParkingSpace(models.Model):
 
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
+
+    address = models.OneToOneField(Address, on_delete=models.PROTECT, null=True)
 
     available_spaces = models.PositiveIntegerField(
         "Number of spaces available",

@@ -16,7 +16,7 @@ from api.general_permissions import ReadOnly, IsStaff
 from .api_permissions import (
     IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly, IsStaffOrIsTargetUserOrReadOnly,
     IsAdminOrIsTargetUser, IsStaffOrWriteOnly, CustomersCanCreateStaffCanRead,
-    StaffCanReadAndHostsCanWrite)
+    StaffCanReadAndHostsCanWrite, IsHost)
 from .models import Customer, Host, Vehicle, Address
 from .pagination import PreviousReservationsCursorPagination
 from .serializers import (
@@ -207,18 +207,15 @@ class HostSelfPreviousReservations(generics.ListAPIView):
 
 class HostSelfUpdateVerificationInfo(APIView):
     queryset = Host.objects.all()
+    permission_classes = (IsHost,)
 
     def put(self, request):
 
-        try:
-            host = request.user.host
-        except ObjectDoesNotExist:
-            raise ValidationError("User is not host")
-
-        address2 = request.data.get('address2', None)
+        host = request.user.host
 
         try:
             address1 = request.data['address1']
+            address2 = request.data.get('address2', None)
             city = request.data['city']
             state = request.data['state']
             code = request.data['code']
@@ -227,9 +224,9 @@ class HostSelfUpdateVerificationInfo(APIView):
             raise ValidationError("Incomplete fields")
 
         try:
+            address = Address.objects.get(address1=address1, address2=address2, city=city, state=state, code=code)
+        except Address.DoesNotExist:
             address = Address.objects.create(address1=address1, address2=address2, city=city, state=state, code=code)
-        except:
-            raise ValidationError("Corrupt fields")
 
         host.address = address
         host.date_of_birth = dateutil.parser.parse(date_of_birth)

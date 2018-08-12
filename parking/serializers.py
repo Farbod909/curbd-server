@@ -51,8 +51,8 @@ class RepeatingAvailabilitySerializer(serializers.ModelSerializer):
         return value
 
 
-class ParkingSpaceSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
+class ParkingSpaceSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='parkingspace-detail')
     fixedavailability_set = FixedAvailabilitySerializer(
         many=True, read_only=True)
     repeatingavailability_set = RepeatingAvailabilitySerializer(
