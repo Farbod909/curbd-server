@@ -369,11 +369,16 @@ class RepeatingAvailability(models.Model):
 
     def __str__(self):
         repeating_days = ', '.join(self.repeating_days)
-        return '%s: Every %s, %s - %s' % (
-            self.parking_space,
-            repeating_days,
-            self.start_time.strftime("%H:%M"),
-            self.end_time.strftime("%H:%M"))
+        if self.all_day:
+            return '%s: Every %s, All day' % (
+                self.parking_space,
+                repeating_days)
+        else:
+            return '%s: Every %s, %s - %s' % (
+                self.parking_space,
+                repeating_days,
+                self.start_time.strftime("%H:%M"),
+                self.end_time.strftime("%H:%M"))
 
 
 class Reservation(models.Model):
