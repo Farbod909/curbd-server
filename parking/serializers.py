@@ -89,6 +89,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         view_name='vehicle-detail')
 
     reserver = UserDetailSerializer(source='vehicle.customer.user', read_only=True)
+    host = UserDetailSerializer(source='parking_space.host.user', read_only=True)
 
     parking_space_id = serializers.PrimaryKeyRelatedField(queryset=ParkingSpace.objects.all(), write_only=True)
     parking_space = ParkingSpaceMinimalSerializer(read_only=True)

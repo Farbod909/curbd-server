@@ -26,7 +26,8 @@ urlpatterns = [
 
     path('reservations/', api_views.ReservationList.as_view(), name='reservation-list'),
     path('reservations/<int:pk>/', api_views.ReservationDetail.as_view(), name='reservation-detail'),
-    # path('reservations/<int:pk>/report/', api_views.ReservationReport.as_view(), name='reservation-report'),
+    # path('reservations/<int:pk>/cancel/', api_views.cancel_reservation, name='reservation-report'),
+    # path('reservations/<int:pk>/report/', api_views.report_reservation.as_view(), name='reservation-report'),
     # path('reservations/<int:pk>/extend/', api_views.ReservationExtend.as_view(), name='reservation-extend'),
 
 ]
