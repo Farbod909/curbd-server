@@ -127,7 +127,7 @@ class CustomerSelfCurrentReservations(generics.ListAPIView):
 
     def get_queryset(self):
         return self.request.user.customer.reservations().filter(
-            end_datetime__gte=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
+            end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
 
 
 class CustomerSelfPreviousReservations(generics.ListAPIView):
@@ -138,11 +138,11 @@ class CustomerSelfPreviousReservations(generics.ListAPIView):
 
     def get_queryset(self):
         return self.request.user.customer.reservations().filter(
-            end_datetime__lt=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('-start_datetime')
+            end_datetime__lt=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
 
 
 class HostList(generics.ListAPIView):
-    queryset = Host.objects.all()
+    queryset = Host.objects.all().order_by('-host_since')
     serializer_class = HostSerializer
     permission_classes = (IsStaff,)
     # POSSIBLE ADDITION: change to ListCreateAPIView and override perform_create
@@ -173,7 +173,7 @@ class HostSelfParkingSpaces(generics.ListAPIView):
 
     def get_queryset(self):
         try:
-            return self.request.user.host.parkingspace_set.all()
+            return self.request.user.host.parkingspace_set.all().order_by('-created_at')
         except Host.DoesNotExist:
             raise Http404
 
@@ -186,7 +186,7 @@ class HostSelfCurrentReservations(generics.ListAPIView):
     def get_queryset(self):
         try:
             return self.request.user.host.reservations().filter(
-                end_datetime__gte=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('start_datetime')
+                end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
         except Host.DoesNotExist:
             raise Http404
 
@@ -200,7 +200,7 @@ class HostSelfPreviousReservations(generics.ListAPIView):
     def get_queryset(self):
         try:
             return self.request.user.host.reservations().filter(
-                end_datetime__lt=datetime.datetime.now(tz=pytz.timezone('America/Los_Angeles'))).order_by('-start_datetime')
+                end_datetime__lt=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
         except Host.DoesNotExist:
             raise Http404
 
@@ -236,7 +236,7 @@ class HostSelfUpdateVerificationInfo(APIView):
 
 
 class VehicleList(generics.ListCreateAPIView):
-    queryset = Vehicle.objects.all()
+    queryset = Vehicle.objects.all().order_by('-created_at')
     serializer_class = VehicleSerializer
     permission_classes = (CustomersCanCreateStaffCanRead,)
 

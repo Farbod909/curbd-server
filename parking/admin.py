@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
+from .models import ParkingSpace, ParkingSpaceImage, FixedAvailability, RepeatingAvailability, Reservation
 
 
 class FixedAvailabilityAdmin(admin.ModelAdmin):
@@ -29,6 +29,7 @@ class RepeatingAvailabilityAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ParkingSpace)
+admin.site.register(ParkingSpaceImage)
 admin.site.register(FixedAvailability, FixedAvailabilityAdmin)
 admin.site.register(RepeatingAvailability, RepeatingAvailabilityAdmin)
 admin.site.register(Reservation)

@@ -182,6 +182,7 @@ VEHICLE_SIZES = (
 class Vehicle(models.Model):
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     color = models.CharField(max_length=25)
     year = models.CharField(max_length=25)

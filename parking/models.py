@@ -7,7 +7,7 @@ from django.utils import timezone
 import calendar
 from enum import Enum
 
-from accounts.models import Vehicle, Host, Address, VEHICLE_SIZES
+from accounts.models import Host, Address, VEHICLE_SIZES
 from .fields import ChoiceArrayField
 
 
@@ -70,6 +70,8 @@ class ParkingSpace(models.Model):
     host = models.ForeignKey(
         Host, on_delete=models.CASCADE,
         help_text="The host that the parking space belongs to")
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
@@ -161,9 +163,18 @@ class ParkingSpace(models.Model):
         return self.name
 
 
+class ParkingSpaceImage(models.Model):
+    image = models.ImageField(upload_to='images')
+    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE, related_name='images')
+
+    def __str__(self):
+        return self.image.name
+
+
 class FixedAvailability(models.Model):
 
     parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
@@ -287,8 +298,8 @@ class RepeatingAvailability(models.Model):
         (Weekday.Saturday.value, 'Saturday'),
     )
 
-    parking_space = models.ForeignKey(
-        ParkingSpace, on_delete=models.CASCADE)
+    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     start_time = models.TimeField(null=True)
     end_time = models.TimeField(null=True)
@@ -407,6 +418,8 @@ class Reservation(models.Model):
     cost = models.PositiveIntegerField(null=False)
     host_income = models.PositiveIntegerField(null=False)
     payment_method_info = models.CharField(max_length=30, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def parking_space(self):
         return ParkingSpace.objects.filter(

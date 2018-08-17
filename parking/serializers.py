@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .serializer_fields import StringArrayField, VehicleField, ParkingSpaceField
-from .models import ParkingSpace, FixedAvailability, RepeatingAvailability, Reservation
+from .models import ParkingSpace, ParkingSpaceImage, FixedAvailability, RepeatingAvailability, Reservation
 
 
 class FixedAvailabilitySerializer(serializers.ModelSerializer):

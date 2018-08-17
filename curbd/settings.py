@@ -1,6 +1,6 @@
 import os
 from decouple import config
-
+from google.oauth2 import service_account
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -153,6 +153,8 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
 
+# Email settings
+
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = config('EMAIL_HOST', default='')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
@@ -162,3 +164,18 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 
 DEFAULT_FROM_EMAIL = 'Curbd <noreply@curbdparking.com>'
 EMAIL_SUBJECT_PREFIX = '[Curbd] '
+
+
+# File storage
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+
+# Google Cloud Platform settings
+
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    config('GS_CREDENTIALS_PATH')
+)
+
+GS_BUCKET_NAME = config('GS_BUCKET_NAME')
+GS_PROJECT_ID = config('GS_PROJECT_ID')
