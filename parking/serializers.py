@@ -57,6 +57,7 @@ class ParkingSpaceSerializer(serializers.ModelSerializer):
         many=True, read_only=True)
     repeatingavailability_set = RepeatingAvailabilitySerializer(
         many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     # reservations = ReservationSerializer(
     #     many=True,
     #     read_only=True)
@@ -67,6 +68,9 @@ class ParkingSpaceSerializer(serializers.ModelSerializer):
         model = ParkingSpace
         fields = '__all__'
         read_only_fields = ('host',)
+
+    def get_images(self, parking_space):
+        return [parking_space_image.image.url for parking_space_image in parking_space.images.all()]
 
 
 class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):

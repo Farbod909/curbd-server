@@ -98,11 +98,10 @@ class ParkingSpace(models.Model):
         max_length=50,
         help_text="e.g. '123 Robertson' or 'Sam's Diner'")
     instructions = models.CharField(
-        max_length=100, blank=True,
+        max_length=1000, blank=True,
         help_text="Any instructions that will help customers find the parking spot")
 
     physical_type = models.CharField(max_length=50, choices=PHYSICAL_TYPES)
-
     legal_type = models.CharField(max_length=50, choices=LEGAL_TYPES)
 
     is_active = models.BooleanField(default=False)

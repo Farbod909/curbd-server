@@ -179,3 +179,4 @@ GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
 
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
+GS_DEFAULT_ACL = config('GS_DEFAULT_ACL')
