@@ -73,8 +73,8 @@ class ParkingSpace(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
 
     address = models.OneToOneField(Address, on_delete=models.PROTECT, null=True)
 
