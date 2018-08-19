@@ -414,9 +414,9 @@ class Reservation(models.Model):
     models.FloatField()
 
     # in US cents
-    cost = models.PositiveIntegerField(null=False)
-    host_income = models.PositiveIntegerField(null=False)
-    payment_method_info = models.CharField(max_length=30, null=True)
+    cost = models.IntegerField(null=False)
+    host_income = models.IntegerField(null=False)
+    payment_method_info = models.CharField(max_length=30, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -441,10 +441,11 @@ class Reservation(models.Model):
             weekday = calendar.day_name[self.start_datetime.weekday()][:3]  # first 3 letters of weekday e.g. 'Mon'
             if weekday not in self.repeating_availability.repeating_days:
                 raise ValidationError('Reservation is not a valid weekday')
-            if self.start_datetime.time() < self.repeating_availability.start_time or \
-                    self.end_datetime.time() > self.repeating_availability.end_time:
-                raise ValidationError("Start and end time of reservation is not within "
-                                      "bounds of start and end time of availability")
+            if not self.repeating_availability.all_day:
+                if self.start_datetime.time() < self.repeating_availability.start_time or \
+                        self.end_datetime.time() > self.repeating_availability.end_time:
+                    raise ValidationError("Start and end time of reservation is not within "
+                                          "bounds of start and end time of availability")
         else:
             if self.start_datetime < self.fixed_availability.start_datetime or \
                     self.end_datetime > self.fixed_availability.end_datetime:
@@ -477,6 +478,7 @@ class Reservation(models.Model):
         self.check_reservation_overlap()
 
         self.host_income = (self.cost * (1 - 0.029) - 30) * 0.8
+        self.host_income = max(0.0, self.host_income)
 
         super(Reservation, self).save(*args, **kwargs)
 
