@@ -227,47 +227,48 @@ class FixedAvailability(models.Model):
             if (self.start_datetime <= fixed_availability.end_datetime) and (self.end_datetime >= fixed_availability.start_datetime):
                 raise ValidationError("Overlaps with other availability")
 
-    def check_overlap_with_repeating_availabilities(self):
-        repeating_availabilities = RepeatingAvailability.objects.filter(parking_space=self.parking_space)
-
-        if self.pk is not None:
-            repeating_availabilities = repeating_availabilities.exclude(pk=self.pk)
-
-        fixed_availability = self
-
-        # 168 hours is equivalent to one week. If the duration of the
-        # fixed availability encompasses one week or longer, no combination
-        # of repeating availabilities is possible without overlap.
-        if fixed_availability.get_duration() >= 168:
-            raise ValidationError("Overlaps with other availability")
-        else:
-            weekday_span = self.get_weekday_span()
-
-        for repeating_availability in repeating_availabilities:
-
-            # All of the days in weekday_span that aren't the first and last days
-            # of the fixed availability, are fully reserved. Therefore, if any of
-            # the repeating days are present in this list (weekday_span[1:-1]),
-            # there is an overlap.
-            if list(set(repeating_availability.repeating_days) & set(weekday_span[1:-1])):
-                raise ValidationError("Overlaps with other availability")
-
-            # Now we check if the fixed availability's start day or end day is
-            # the same weekday as one of the repeating availability days. If so,
-            # we check to see if it overlaps at any time.
-            if weekday_span[0] in repeating_availability.repeating_days:
-                if repeating_availability.start_time < fixed_availability.start_datetime.time() < repeating_availability.end_time:
-                    raise ValidationError("Overlaps with other availability")
-
-            if weekday_span[-1] in repeating_availability.repeating_days:
-                if repeating_availability.start_time < fixed_availability.end_datetime.time() < repeating_availability.end_time:
-                    raise ValidationError("Overlaps with other availability")
+    # DON'T ATTEMPT TO USE THIS FUNCTION. IT IS USELESS AND MOST LIKELY BROKEN
+    # BECAUSE OF THE ADDITION OF THE RepeatingAvailability.all_day FIELD.
+    # def check_overlap_with_repeating_availabilities(self):
+    #     repeating_availabilities = RepeatingAvailability.objects.filter(parking_space=self.parking_space)
+    #
+    #     if self.pk is not None:
+    #         repeating_availabilities = repeating_availabilities.exclude(pk=self.pk)
+    #
+    #     fixed_availability = self
+    #
+    #     # 168 hours is equivalent to one week. If the duration of the
+    #     # fixed availability encompasses one week or longer, no combination
+    #     # of repeating availabilities is possible without overlap.
+    #     if fixed_availability.get_duration() >= 168:
+    #         raise ValidationError("Overlaps with other availability")
+    #     else:
+    #         weekday_span = self.get_weekday_span()
+    #
+    #     for repeating_availability in repeating_availabilities:
+    #
+    #         # All of the days in weekday_span that aren't the first and last days
+    #         # of the fixed availability, are fully reserved. Therefore, if any of
+    #         # the repeating days are present in this list (weekday_span[1:-1]),
+    #         # there is an overlap.
+    #         if list(set(repeating_availability.repeating_days) & set(weekday_span[1:-1])):
+    #             raise ValidationError("Overlaps with other availability")
+    #
+    #         # Now we check if the fixed availability's start day or end day is
+    #         # the same weekday as one of the repeating availability days. If so,
+    #         # we check to see if it overlaps at any time.
+    #         if weekday_span[0] in repeating_availability.repeating_days:
+    #             if repeating_availability.start_time < fixed_availability.start_datetime.time() < repeating_availability.end_time:
+    #                 raise ValidationError("Overlaps with other availability")
+    #
+    #         if weekday_span[-1] in repeating_availability.repeating_days:
+    #             if repeating_availability.start_time < fixed_availability.end_datetime.time() < repeating_availability.end_time:
+    #                 raise ValidationError("Overlaps with other availability")
 
     def save(self, *args, **kwargs):
         self.check_end_comes_after_start()
         self.check_ends_after_current_time()
         self.check_overlap_with_fixed_availabilities()
-        # self.check_overlap_with_repeating_availabilities()
 
         super(FixedAvailability, self).save(*args, **kwargs)
 
@@ -319,30 +320,32 @@ class RepeatingAvailability(models.Model):
             if self.start_time > self.end_time:
                 raise ValidationError("Availability end time must come after start time")
 
-    def check_overlap_with_fixed_availabilities(self):
-        fixed_availabilities = FixedAvailability.objects.filter(parking_space=self.parking_space)
-
-        if self.pk is not None:
-            fixed_availabilities = fixed_availabilities.exclude(pk=self.pk)
-
-        repeating_availability = self
-
-        for fixed_availability in fixed_availabilities:
-            if fixed_availability.get_duration() >= 168:
-                raise ValidationError("Overlaps with other availability")
-
-            fixed_availability_weekday_span = fixed_availability.get_weekday_span()
-
-            if list(set(repeating_availability.repeating_days) & set(fixed_availability_weekday_span[1:-1])):
-                raise ValidationError("Overlaps with other availability")
-
-            if fixed_availability_weekday_span[0] in repeating_availability.repeating_days:
-                if repeating_availability.start_time < fixed_availability.start_datetime.time() < repeating_availability.end_time:
-                    raise ValidationError("Overlaps with other availability")
-
-            if fixed_availability_weekday_span[-1] in self.repeating_days:
-                if repeating_availability.start_time < fixed_availability.end_datetime.time() < repeating_availability.end_time:
-                    raise ValidationError("Overlaps with other availability")
+    # DON'T ATTEMPT TO USE THIS FUNCTION. IT IS USELESS AND MOST LIKELY BROKEN
+    # BECAUSE OF THE ADDITION OF THE RepeatingAvailability.all_day FIELD.
+    # def check_overlap_with_fixed_availabilities(self):
+    #     fixed_availabilities = FixedAvailability.objects.filter(parking_space=self.parking_space)
+    #
+    #     if self.pk is not None:
+    #         fixed_availabilities = fixed_availabilities.exclude(pk=self.pk)
+    #
+    #     repeating_availability = self
+    #
+    #     for fixed_availability in fixed_availabilities:
+    #         if fixed_availability.get_duration() >= 168:
+    #             raise ValidationError("Overlaps with other availability")
+    #
+    #         fixed_availability_weekday_span = fixed_availability.get_weekday_span()
+    #
+    #         if list(set(repeating_availability.repeating_days) & set(fixed_availability_weekday_span[1:-1])):
+    #             raise ValidationError("Overlaps with other availability")
+    #
+    #         if fixed_availability_weekday_span[0] in repeating_availability.repeating_days:
+    #             if repeating_availability.start_time < fixed_availability.start_datetime.time() < repeating_availability.end_time:
+    #                 raise ValidationError("Overlaps with other availability")
+    #
+    #         if fixed_availability_weekday_span[-1] in self.repeating_days:
+    #             if repeating_availability.start_time < fixed_availability.end_datetime.time() < repeating_availability.end_time:
+    #                 raise ValidationError("Overlaps with other availability")
 
     def check_overlap_with_repeating_availabilities(self):
         repeating_availabilities = RepeatingAvailability.objects.filter(parking_space=self.parking_space)
@@ -364,7 +367,6 @@ class RepeatingAvailability(models.Model):
 
     def save(self, *args, **kwargs):
         self.check_end_comes_after_start()
-        # self.check_overlap_with_fixed_availabilities()
         self.check_overlap_with_repeating_availabilities()
         self.check_is_all_day_or_has_start_and_end_time()
 
@@ -399,9 +401,9 @@ class Reservation(models.Model):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
 
-    for_repeating = models.BooleanField(editable=False)
     # determines if this reservation is for a
     # RepeatingAvailability or a FixedAvailability
+    for_repeating = models.BooleanField(editable=False)
 
     fixed_availability = models.ForeignKey(
         FixedAvailability, on_delete=models.PROTECT, blank=True, null=True)
@@ -478,6 +480,7 @@ class Reservation(models.Model):
         self.check_reservation_overlap()
 
         self.host_income = (self.cost * (1 - 0.029) - 30) * 0.8
+        # make sure the host never loses money
         self.host_income = max(0.0, self.host_income)
 
         super(Reservation, self).save(*args, **kwargs)

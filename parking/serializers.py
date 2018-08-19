@@ -77,9 +77,14 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
     features = StringArrayField()
     # TODO: add validation for features
 
+    images = serializers.SerializerMethodField()
+
     class Meta:
         model = ParkingSpace
-        fields = ('id', 'name', 'latitude', 'longitude', 'features', 'instructions', 'size', 'available_spaces',)
+        fields = ('id', 'name', 'latitude', 'longitude', 'features', 'instructions', 'size', 'available_spaces', 'images')
+
+    def get_images(self, parking_space):
+        return [parking_space_image.image.url for parking_space_image in parking_space.images.all()]
 
 
 class ReservationSerializer(serializers.ModelSerializer):

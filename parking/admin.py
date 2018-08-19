@@ -21,7 +21,7 @@ class FixedAvailabilityAdmin(admin.ModelAdmin):
 
 
 class RepeatingAvailabilityAdmin(admin.ModelAdmin):
-    list_display = ('parking_space', 'start_time', 'end_time', 'repeating_days', 'get_pricing')
+    list_display = ('parking_space', 'all_day', 'start_time', 'end_time', 'repeating_days', 'get_pricing')
 
     def get_pricing(self, obj):
         return '$' + str(obj.pricing/100) + ' / hr'

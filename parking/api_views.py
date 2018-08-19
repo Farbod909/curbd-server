@@ -123,11 +123,10 @@ class ReservationList(generics.ListCreateAPIView):
                 # POSSIBLE ADDITION: allow start_datetime and end_datetime to be on
                 # two different weekdays
                 repeating_availability = RepeatingAvailability.objects.get(
-                    Q(parking_space=parking_space),
-                    Q(start_time__lte=start_datetime.time()),
-                    Q(end_time__gte=end_datetime.time()),
-                    Q(repeating_days__contains=[day_of_week])
-                )
+                    Q(parking_space=parking_space) &
+                    (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
+                    Q(repeating_days__contains=[day_of_week]))
+
             except ObjectDoesNotExist:
                 # neither a fixed availability nor a repeating
                 # availability exists.
