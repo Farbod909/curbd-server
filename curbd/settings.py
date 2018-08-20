@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
@@ -36,7 +36,6 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication'
     ),
@@ -94,8 +93,8 @@ WSGI_APPLICATION = 'curbd.wsgi.application'
 DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'curbd',
-        'USER': 'postgres',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '5433'
@@ -174,8 +173,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 # Google Cloud Platform settings
 
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    config('GS_CREDENTIALS_PATH')
-)
+    config('GS_CREDENTIALS_PATH'))
 
 GS_BUCKET_NAME = config('GS_BUCKET_NAME')
 GS_PROJECT_ID = config('GS_PROJECT_ID')
