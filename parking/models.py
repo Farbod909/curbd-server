@@ -273,7 +273,7 @@ class FixedAvailability(models.Model):
         super(FixedAvailability, self).save(*args, **kwargs)
 
     def is_reserved(self, start_datetime, end_datetime):
-        for reservation in self.reservation_set.all():
+        for reservation in self.reservation_set.filter(cancelled=False):
             if reservation.overlaps_with(start_datetime, end_datetime):
                 return True
 
@@ -373,7 +373,7 @@ class RepeatingAvailability(models.Model):
         super(RepeatingAvailability, self).save(*args, **kwargs)
 
     def is_reserved(self, start_datetime, end_datetime):
-        for reservation in self.reservation_set.all():
+        for reservation in self.reservation_set.filter(cancelled=False):
             if reservation.overlaps_with(start_datetime, end_datetime):
                 return True
 
@@ -460,9 +460,7 @@ class Reservation(models.Model):
         else:
             parking_space = self.fixed_availability.parking_space
 
-        reservations = Reservation.objects.filter(
-            Q(repeating_availability__parking_space=parking_space) |
-            Q(fixed_availability__parking_space=parking_space))
+        reservations = parking_space.reservations().filter(cancelled=False)
 
         if self.pk is not None:
             reservations = reservations.exclude(pk=self.pk)

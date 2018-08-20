@@ -3,7 +3,10 @@ import datetime
 import pytz
 import dateutil.parser
 
+from decouple import config
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import Http404
 from django.utils.datastructures import MultiValueDictKeyError
@@ -13,7 +16,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 
 from .api_permissions import (
     IsAdminOrIsParkingSpaceOwnerOrReadOnly, IsHostOrReadOnly,
@@ -248,6 +250,7 @@ class ParkingSpacePreviousReservations(generics.ListAPIView):
 
 
 class ReservationReport(APIView):
+    queryset = Reservation.objects.all()
 
     def get_object(self, pk):
         try:
@@ -257,10 +260,22 @@ class ReservationReport(APIView):
 
     def post(self, request, pk):
         reservation = self.get_object(pk)
+        title = request.data.get("title")
+        comments = request.data.get("comments", "None")
+        reporter = request.user
+        reporter_type = request.data.get("reporter_type")
+
+        send_mail(
+            '[REPORT]',
+            "reservation id: %s,\n title: %s,\n comments: %s,\n reporter full name: %s,\n reporter id: %s,\n reporter type: %s" %
+            (reservation.id, title, comments, reporter.get_full_name(), reporter.id, reporter_type),
+            'no-reply@curbdparking.com', [config('REPORT_RECIPIENT')])
+
         return Response("Success", status=status.HTTP_200_OK)
 
 
 class ReservationCancel(APIView):
+    queryset = Reservation.objects.all()
 
     def get_object(self, pk):
         try:
@@ -271,12 +286,19 @@ class ReservationCancel(APIView):
     def post(self, request, pk):
         reservation = self.get_object(pk)
 
-        if reservation.start_datetime > datetime.datetime.now(pytz.utc) or \
+        if reservation.start_datetime < datetime.datetime.now(pytz.utc) or \
                 reservation.vehicle.customer != request.user.customer:
             return Response(status=status.HTTP_403_FORBIDDEN)
         else:
             reservation.cancelled = True
             reservation.save()
-            # TODO: send email
+
+            send_mail(
+                '[CANCELLATION]',
+                "reservation id: %s,\n reservation cost: %s,\n reservation host income: %s,\n reserver id: %s,\n reserver full name: %s" %
+                (reservation.id, reservation.cost, reservation.host_income,
+                 reservation.vehicle.customer.user.id, reservation.vehicle.customer.user.get_full_name()),
+                'no-reply@curbdparking.com', [config('CANCEL_RECIPIENT')])
+
             return Response("Success", status=status.HTTP_200_OK)
 

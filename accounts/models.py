@@ -150,7 +150,8 @@ class Host(models.Model):
             Q(fixed_availability__parking_space__host=self) |
             Q(repeating_availability__parking_space__host=self)).filter(
             paid_out=False).filter(
-            end_datetime__lt=datetime.datetime.now(pytz.utc)).aggregate(Sum('host_income'))
+            end_datetime__lt=datetime.datetime.now(pytz.utc)).filter(
+            cancelled=False).aggregate(Sum('host_income'))
         return earnings['host_income__sum'] or 0
 
     def save(self, *args, **kwargs):

@@ -144,7 +144,7 @@ class HostSerializer(serializers.ModelSerializer):
     def get_total_earnings(self, host):
         from parking.models import Reservation
 
-        earnings = Reservation.objects.filter(
+        earnings = Reservation.objects.filter(cancelled=False).filter(
             Q(fixed_availability__parking_space__host=host) |
             Q(repeating_availability__parking_space__host=host)).aggregate(Sum('host_income'))
         return earnings['host_income__sum'] or 0
@@ -152,7 +152,7 @@ class HostSerializer(serializers.ModelSerializer):
     def get_current_balance(self, host):
         from parking.models import Reservation
 
-        earnings = Reservation.objects.filter(
+        earnings = Reservation.objects.filter(cancelled=False).filter(
             Q(fixed_availability__parking_space__host=host) |
             Q(repeating_availability__parking_space__host=host)).filter(paid_out=False).aggregate(Sum('host_income'))
         return earnings['host_income__sum'] or 0
@@ -160,7 +160,7 @@ class HostSerializer(serializers.ModelSerializer):
     def get_available_balance(self, host):
         from parking.models import Reservation
 
-        earnings = Reservation.objects.filter(
+        earnings = Reservation.objects.filter(cancelled=False).filter(
             Q(fixed_availability__parking_space__host=host) |
             Q(repeating_availability__parking_space__host=host)).filter(
             paid_out=False).filter(

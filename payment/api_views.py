@@ -69,12 +69,13 @@ def venmo_payout(request):
         Q(fixed_availability__parking_space__host=host) |
         Q(repeating_availability__parking_space__host=host)).filter(
         paid_out=False).filter(
-        end_datetime__lt=datetime.datetime.now(pytz.utc)).update(paid_out=True)
+        end_datetime__lt=datetime.datetime.now(pytz.utc)).filter(
+        cancelled=False).update(paid_out=True)
 
     send_mail(
-        'Payout request',
-        "amount: %s, venmo email: %s, user id: %s, user full name: %s" %
-        (amount, venmo_email, request.user.id, request.user.first_name + ' ' + request.user.last_name),
+        '[PAYOUT]',
+        "amount: %s,\n venmo email: %s,\n user id: %s,\n user full name: %s" %
+        (amount, venmo_email, request.user.id, request.user.get_full_name()),
         'no-reply@curbdparking.com', [config('PAYOUT_REQUEST_RECIPIENT')])
 
     return Response("Success", 200)

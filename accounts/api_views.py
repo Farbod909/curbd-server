@@ -127,7 +127,8 @@ class CustomerSelfCurrentReservations(generics.ListAPIView):
 
     def get_queryset(self):
         return self.request.user.customer.reservations().filter(
-            end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
+            end_datetime__gte=datetime.datetime.now(pytz.utc)).filter(
+            cancelled=False).order_by('-start_datetime')
 
 
 class CustomerSelfPreviousReservations(generics.ListAPIView):
@@ -138,7 +139,8 @@ class CustomerSelfPreviousReservations(generics.ListAPIView):
 
     def get_queryset(self):
         return self.request.user.customer.reservations().filter(
-            end_datetime__lt=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
+            end_datetime__lt=datetime.datetime.now(pytz.utc)).filter(
+            cancelled=False).order_by('-start_datetime')
 
 
 class HostList(generics.ListAPIView):
