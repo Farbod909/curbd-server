@@ -308,8 +308,8 @@ class RepeatingAvailability(models.Model):
     all_day = models.BooleanField(default=False, null=False)
 
     pricing = models.PositiveIntegerField(
-        default=15,
-        help_text="The cost (in U.S. cents) of parking at the space for 5 minutes")
+        default=100,
+        help_text="The cost (in U.S. cents) of parking at the space for 1 hour")
     # This is the price the CUSTOMER pays (not what the HOST earns)
 
     class Meta:

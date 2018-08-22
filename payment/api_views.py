@@ -14,7 +14,7 @@ from accounts.api_permissions import IsHost
 from parking.models import Reservation
 
 import stripe
-stripe.api_key = "sk_test_4QCFRtdqrQLuKnFizELDk4i6"
+stripe.api_key = config('STRIPE_SECRET_KEY')
 
 
 @api_view(['POST'])

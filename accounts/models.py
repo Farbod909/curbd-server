@@ -10,12 +10,13 @@ from django.db.models.query import Q
 import datetime
 import pytz
 
+from decouple import config
 from enum import Enum
 
 from .managers import UserManager
 
 import stripe
-stripe.api_key = "sk_test_4QCFRtdqrQLuKnFizELDk4i6"
+stripe.api_key = config('STRIPE_SECRET_KEY')
 
 
 class User(AbstractBaseUser, PermissionsMixin):
