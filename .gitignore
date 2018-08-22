@@ -1,6 +1,7 @@
-config.json
-.env
 *.pyc
 .DS_Store
+.env
 .idea/
+all_static/
+app.yaml
 env/

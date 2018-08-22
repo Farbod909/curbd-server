@@ -14,9 +14,11 @@ google-cloud-core==0.28.1
 google-cloud-storage==1.10.0
 google-resumable-media==0.3.1
 googleapis-common-protos==1.5.3
+gunicorn==19.9.0
 idna==2.7
 numpy==1.15.0
 Pillow==5.2.0
+pip==18.0
 protobuf==3.6.1
 psycopg2-binary==2.7.5
 pyasn1==0.4.4
@@ -26,7 +28,9 @@ python-decouple==3.1
 pytz==2018.5
 requests==2.19.1
 rsa==3.4.2
+setuptools==40.0.0
 six==1.11.0
 stripe==2.3.0
 timezonefinder==3.0.1
 urllib3==1.23
+wheel==0.31.1
