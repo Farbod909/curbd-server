@@ -406,9 +406,9 @@ class Reservation(models.Model):
     for_repeating = models.BooleanField(editable=False)
 
     fixed_availability = models.ForeignKey(
-        FixedAvailability, on_delete=models.PROTECT, blank=True, null=True)
+        FixedAvailability, on_delete=models.SET_NULL, blank=True, null=True)
     repeating_availability = models.ForeignKey(
-        RepeatingAvailability, on_delete=models.PROTECT, blank=True, null=True)
+        RepeatingAvailability, on_delete=models.SET_NULL, blank=True, null=True)
 
     cancelled = models.BooleanField(default=False, null=False)
 
