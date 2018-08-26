@@ -1,8 +1,10 @@
 *.pyc
+*.yaml
+
 .DS_Store
 .env
 .gcloudignore
 .idea/
+
 all_static/
-*.yaml
 env/

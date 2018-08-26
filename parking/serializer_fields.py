@@ -7,11 +7,18 @@ class StringArrayField(ListField):
     """
     def to_representation(self, obj):
         obj = super().to_representation(obj)
+
+        # uncomment this if you want the REST API to show [] instead of ""
+        # for parking spaces with an empty features array.
+        # if not obj:
+        #     return []
+
         # convert list to string
         return ", ".join([str(element) for element in obj])
 
     def to_internal_value(self, data):
-        data = data[0].split(", ")  # convert string to list
+        if data:  # if data is non-empty
+            data = data[0].split(", ")  # convert string to list
         return super().to_internal_value(data)
 
 
