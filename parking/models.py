@@ -488,14 +488,8 @@ class Reservation(models.Model):
         return (self.start_datetime <= end_datetime) and (self.end_datetime >= start_datetime)
 
     def __str__(self):
-        if self.for_repeating:
-            parking_space = self.repeating_availability.parking_space
-        else:
-            parking_space = self.fixed_availability.parking_space
-
-        return "%s @ %s: %s - %s" % (
+        return "%s: %s - %s" % (
                 self.vehicle,
-                parking_space,
                 timezone.localtime(self.start_datetime).strftime("%H:%M on %b %d, %Y"),
                 timezone.localtime(self.end_datetime).strftime("%H:%M on %b %d, %Y"))
 
