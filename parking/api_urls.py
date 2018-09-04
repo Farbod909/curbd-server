@@ -5,6 +5,7 @@ from . import api_views
 
 urlpatterns = [
     path('spaces/', api_views.ParkingSpaceList.as_view(), name='parkingspace-list'),
+    path('spaces/search/', api_views.ParkingSpaceSearch.as_view(), name='parkingspace=search'),
     path('spaces/<int:pk>/', api_views.ParkingSpaceDetail.as_view(), name='parkingspace-detail'),
     path('spaces/<int:pk>/availability/', api_views.ParkingSpaceAvailability.as_view(), name='parkingspace-availability'),
     path('spaces/<int:pk>/repeatingavailabilities/', api_views.ParkingSpaceRepeatingAvailabilities.as_view(),

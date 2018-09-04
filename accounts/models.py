@@ -24,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField('email address', unique=True)
     first_name = models.CharField('first name', max_length=30, blank=False)
     last_name = models.CharField('last name', max_length=30, blank=False)
-    phone_number = models.CharField('phone number', max_length=15, blank=False, unique=True)
+    phone_number = models.CharField('phone number', max_length=20, blank=False, unique=True)
     date_joined = models.DateTimeField('date joined', auto_now_add=True)
     is_active = models.BooleanField('active', default=True)
     is_staff = models.BooleanField('staff', default=False)
@@ -183,7 +183,7 @@ VEHICLE_SIZES = (
 
 class Vehicle(models.Model):
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
 
     color = models.CharField(max_length=25)

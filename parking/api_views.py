@@ -4,6 +4,7 @@ import pytz
 import dateutil.parser
 
 from decouple import config
+from timezonefinder import TimezoneFinder
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
@@ -23,8 +24,11 @@ from .api_permissions import (
     IsAdminOrIsReservationOwnerOrReadOnly, IsCustomerOrReadOnly,
     IsAuthenticatedOrReadOnly)
 from .api_filters import IsActiveFilter, LocationAndTimeAvailableFilter, MinVehicleSizeFilter
+from .helpers import lat_degrees_from_miles, long_degrees_from_miles_at_lat, get_weekday_span_between
 from .models import ParkingSpace, ParkingSpaceImage, FixedAvailability, RepeatingAvailability, Reservation
-from .serializers import ParkingSpaceSerializer, FixedAvailabilitySerializer, RepeatingAvailabilitySerializer, ReservationSerializer
+from .serializers import (
+    ParkingSpaceSerializer, FixedAvailabilitySerializer,
+    RepeatingAvailabilitySerializer, ReservationSerializer, ParkingSpaceMinimalSerializer)
 from accounts.models import Host, Address
 
 
@@ -68,6 +72,171 @@ class ParkingSpaceList(generics.ListCreateAPIView):
             ParkingSpaceImage.objects.create(image=image, parking_space=parking_space)
 
         return parking_space
+
+
+class ParkingSpaceSearch(APIView):
+    queryset = ParkingSpace.objects.all()
+
+    def get(self, request):
+        bottom_left_lat = request.query_params.get('bl_lat', None)
+        bottom_left_long = request.query_params.get('bl_long', None)
+        top_right_lat = request.query_params.get('tr_lat', None)
+        top_right_long = request.query_params.get('tr_long', None)
+        start_datetime_iso = request.query_params.get('start', None)
+        end_datetime_iso = request.query_params.get('end', None)
+        min_vehicle_size = request.query_params.get('size', None)
+
+        """PRE-PROCESS INPUTS"""
+        # first we need to reduce the box size if it's too large
+        max_search_radius = 6  # in miles
+
+        bottom_left_lat = float(bottom_left_lat)
+        bottom_left_long = float(bottom_left_long)
+        top_right_lat = float(top_right_lat)
+        top_right_long = float(top_right_long)
+
+        center_lat = (bottom_left_lat + top_right_lat) / 2.0
+        center_long = (bottom_left_long + top_right_long) / 2.0
+
+        max_lat_degrees_distance = lat_degrees_from_miles(max_search_radius)
+        if max_lat_degrees_distance < abs(top_right_lat - center_lat):
+            top_right_lat = center_lat + max_lat_degrees_distance
+            bottom_left_lat = center_lat - max_lat_degrees_distance
+
+        max_long_degrees_distance = long_degrees_from_miles_at_lat(max_search_radius, center_lat)
+        if max_long_degrees_distance < abs(top_right_long - center_long):
+            top_right_long = center_long + max_long_degrees_distance
+            bottom_left_long = center_long - max_long_degrees_distance
+
+        # adjust input datetimes for map timezone
+        start_datetime = dateutil.parser.parse(start_datetime_iso)
+        end_datetime = dateutil.parser.parse(end_datetime_iso)
+
+        if start_datetime.tzinfo is None or end_datetime.tzinfo is None:
+            raise ValidationError("Timezone must be provided")
+
+        if start_datetime >= end_datetime:
+            raise ValidationError("end must be a later date than start")
+
+        tf = TimezoneFinder()
+
+        median_lat = (float(bottom_left_lat) + float(top_right_lat)) / 2
+        median_lng = (float(bottom_left_long) + float(top_right_long)) / 2
+
+        timezone_name = tf.timezone_at(lat=median_lat, lng=median_lng)
+
+        if timezone_name is None:
+            timezone_name = tf.closest_timezone_at(lng=median_lat, lat=median_lng)
+
+        if timezone_name is not None:
+            try:
+                tz = pytz.timezone(timezone_name)
+            except pytz.exceptions.UnknownTimeZoneError:
+                # fall back to the timezone that came with the request
+                pass
+            else:
+                naive_start_datetime = start_datetime.replace(tzinfo=None)
+                naive_end_datetime = end_datetime.replace(tzinfo=None)
+
+                start_datetime = tz.localize(naive_start_datetime)
+                end_datetime = tz.localize(naive_end_datetime)
+
+        """QUERY AVAILABLE PARKING SPACES"""
+        # determine the day of the week the user is searching for
+        start_day_of_week = calendar.day_name[start_datetime.weekday()][:3]
+        end_day_of_week = calendar.day_name[end_datetime.weekday()][:3]
+
+        if start_day_of_week == end_day_of_week:
+            repeating_availabilities = RepeatingAvailability.objects.select_related('parking_space').filter(
+                (
+                    Q(parking_space__is_active=True) &
+                    Q(parking_space__longitude__gte=bottom_left_long) &
+                    Q(parking_space__longitude__lte=top_right_long) &
+                    Q(parking_space__latitude__gte=bottom_left_lat) &
+                    Q(parking_space__latitude__lte=top_right_lat)
+                ) &
+                Q(repeating_days__contains=[start_day_of_week]) &
+                (
+                    Q(all_day=True) |
+                    (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))
+                )
+            )
+        else:
+            # reserving a spot over the span of multiple days
+            weekdays = get_weekday_span_between(start_day_of_week, end_day_of_week)
+            repeating_availabilities = RepeatingAvailability.objects.select_related('parking_space').filter(
+                (
+                    Q(parking_space__is_active=True) &
+                    Q(parking_space__longitude__gte=bottom_left_long) &
+                    Q(parking_space__longitude__lte=top_right_long) &
+                    Q(parking_space__latitude__gte=bottom_left_lat) &
+                    Q(parking_space__latitude__lte=top_right_lat)
+                ) &
+                (
+                    Q(repeating_days__contains=weekdays) &
+                    Q(all_day=True)
+                )
+            )
+
+        fixed_availabilities = FixedAvailability.objects.select_related('parking_space').filter(
+            (
+                Q(parking_space__is_active=True) &
+                Q(parking_space__longitude__gte=bottom_left_long) &
+                Q(parking_space__longitude__lte=top_right_long) &
+                Q(parking_space__latitude__gte=bottom_left_lat) &
+                Q(parking_space__latitude__lte=top_right_lat)
+            ) &
+            (
+                Q(start_datetime__lte=start_datetime) &
+                Q(end_datetime__gte=end_datetime)
+            )
+        )
+
+        if min_vehicle_size is not None:
+            repeating_availabilities = repeating_availabilities.filter(parking_space__size__gte=min_vehicle_size)
+            fixed_availabilities = fixed_availabilities.filter(parking_space__size__gte=min_vehicle_size)
+
+        parking_space_ids = set()
+        available_spaces_map = dict()
+        parking_spaces_map = dict()
+
+        for ra in repeating_availabilities:
+            parking_space_ids.add(ra.parking_space_id)
+            available_spaces_map[ra.parking_space_id] = ra.parking_space.available_spaces
+            parking_spaces_map[ra.parking_space_id] = (ra.parking_space, ra.pricing)
+
+        for fa in fixed_availabilities:
+            parking_space_ids.add(fa.parking_space_id)
+            available_spaces_map[fa.parking_space_id] = fa.parking_space.available_spaces
+            # If a repeating and fixed availability have overlap, the next line
+            # will overwrite the pricing from the repeating availability. This is
+            # intended behavior. Fixed availability pricing has priority.
+            parking_spaces_map[fa.parking_space_id] = (fa.parking_space, fa.pricing)
+
+        reservations = Reservation.objects.filter(
+            parking_space__in=parking_space_ids,
+            start_datetime__lte=end_datetime,
+            end_datetime__gte=start_datetime,
+            cancelled=False)
+
+        for reservation in reservations:
+            available_spaces_map[reservation.parking_space_id] -= 1
+
+        for parking_space_id, available_spaces in available_spaces_map.items():
+            if available_spaces == 0:
+                del parking_spaces_map[parking_space_id]
+
+        parking_spaces = [
+            {
+                "parking_space": ParkingSpaceMinimalSerializer(parking_space).data,
+                "pricing": pricing
+            }
+            for parking_space_id, (parking_space, pricing) in parking_spaces_map.items()]
+
+        return Response({
+            "count": len(parking_spaces),
+            "results": parking_spaces,
+        })
 
 
 class ParkingSpaceDetail(generics.RetrieveUpdateDestroyAPIView):

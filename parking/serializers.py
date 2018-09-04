@@ -81,7 +81,9 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ParkingSpace
-        fields = ('id', 'name', 'latitude', 'longitude', 'features', 'instructions', 'size', 'available_spaces', 'images')
+        fields = ('id', 'name', 'latitude', 'longitude', 'features',
+                  'instructions', 'size', 'available_spaces', 'images',
+                  "physical_type", "legal_type", "is_active")
 
     def get_images(self, parking_space):
         return [parking_space_image.image.url for parking_space_image in parking_space.images.all()]

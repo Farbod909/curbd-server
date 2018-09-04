@@ -5,6 +5,8 @@ from rest_framework.exceptions import ValidationError
 from timezonefinder import TimezoneFinder
 import pytz
 
+from .helpers import lat_degrees_from_miles, long_degrees_from_miles_at_lat
+
 
 class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
     """
@@ -27,6 +29,29 @@ class LocationAndTimeAvailableFilter(filters.BaseFilterBackend):
 
         if not any([item is None for item in location_params]):
             # limit queryset to parking spaces within a coordinate box
+
+            # first we need to reduce the box size if it's too large
+            max_search_radius = 6  # in miles
+
+            bottom_left_lat = float(bottom_left_lat)
+            bottom_left_long = float(bottom_left_long)
+            top_right_lat = float(top_right_lat)
+            top_right_long = float(top_right_long)
+
+            center_lat = (bottom_left_lat + top_right_lat) / 2.0
+            center_long = (bottom_left_long + top_right_long) / 2.0
+
+            max_lat_degrees_distance = lat_degrees_from_miles(max_search_radius)
+            if max_lat_degrees_distance < abs(top_right_lat - center_lat):
+                top_right_lat = center_lat + max_lat_degrees_distance
+                bottom_left_lat = center_lat - max_lat_degrees_distance
+
+            max_long_degrees_distance = long_degrees_from_miles_at_lat(max_search_radius, center_lat)
+            if max_long_degrees_distance < abs(top_right_long - center_long):
+                top_right_long = center_long + max_long_degrees_distance
+                bottom_left_long = center_long - max_long_degrees_distance
+
+            # query parking spaces within the box
             queryset = queryset.filter(
                 Q(longitude__gte=bottom_left_long),
                 Q(longitude__lte=top_right_long),

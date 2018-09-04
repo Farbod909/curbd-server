@@ -9,6 +9,7 @@ from enum import Enum
 
 from accounts.models import Host, Address, VEHICLE_SIZES
 from .fields import ChoiceArrayField
+from .helpers import get_weekday_span_between
 
 
 class ParkingSpaceFeature(Enum):
@@ -68,7 +69,9 @@ class ParkingSpace(models.Model):
     )
 
     host = models.ForeignKey(
-        Host, on_delete=models.CASCADE,
+        Host,
+        null=True,
+        on_delete=models.SET_NULL,
         help_text="The host that the parking space belongs to")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,6 +109,7 @@ class ParkingSpace(models.Model):
     legal_type = models.CharField(max_length=50, choices=LEGAL_TYPES)
 
     is_active = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     # TODO: parking space photos
 
@@ -194,18 +198,6 @@ class FixedAvailability(models.Model):
         return delta.days*24 + delta.seconds/3600
 
     def get_weekday_span(self):
-        def get_weekday_span_between(weekday1, weekday2):
-            weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-            weekday1_index = weekdays.index(weekday1)
-            weekday2_index = weekdays.index(weekday2)
-
-            if weekday1_index == weekday2_index:
-                return [weekday1]
-            elif weekday1_index < weekday2_index:
-                return weekdays[weekday1_index:weekday2_index + 1]
-            else:
-                return weekdays[weekday1_index:] + weekdays[:weekday2_index + 1]
-
         return get_weekday_span_between(
                 calendar.day_name[timezone.localtime(self.start_datetime).weekday()][:3],
                 calendar.day_name[timezone.localtime(self.end_datetime).weekday()][:3])
@@ -397,7 +389,7 @@ class RepeatingAvailability(models.Model):
 class Reservation(models.Model):
     from accounts.models import Vehicle
 
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.PROTECT)
 
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
@@ -411,10 +403,19 @@ class Reservation(models.Model):
     repeating_availability = models.ForeignKey(
         RepeatingAvailability, on_delete=models.SET_NULL, blank=True, null=True)
 
+    # we store parking space also so that deleting the availability
+    # with which the parking space was reserved doesn't prevent us
+    # from knowing which parking space the reservation is associated
+    # with.
+    parking_space = models.ForeignKey(
+        ParkingSpace,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT)
+
     cancelled = models.BooleanField(default=False, null=False)
 
     paid_out = models.BooleanField(default=False, null=False)
-    models.FloatField()
 
     # in US cents
     cost = models.IntegerField(null=False)
@@ -423,17 +424,14 @@ class Reservation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def parking_space(self):
-        return ParkingSpace.objects.filter(
-            Q(fixedavailability__reservation=self) |
-            Q(repeatingavailability__reservation=self))[0]  # TODO: use .get() instead of .filter()[0]
-
-    def set_for_repeating_field(self):
+    def set_parking_space_and_for_repeating_fields(self):
         if self.for_repeating is None:
-            if self.repeating_availability is None:
-                self.for_repeating = False
-            else:
+            if self.repeating_availability is not None:
                 self.for_repeating = True
+                self.parking_space = self.repeating_availability.parking_space
+            else:
+                self.for_repeating = False
+                self.parking_space = self.fixed_availability.parking_space
 
     def check_end_comes_after_start(self):
         if self.start_datetime > self.end_datetime:
@@ -471,7 +469,7 @@ class Reservation(models.Model):
                 raise ValidationError("Overlaps with other reservation")
 
     def save(self, *args, **kwargs):
-        self.set_for_repeating_field()  # set the 'for_repeating' field
+        self.set_parking_space_and_for_repeating_fields()  # set the 'for_repeating' field
         self.check_end_comes_after_start()  # make sure reservation end time comes after its start time
         self.check_start_and_end_within_availability_bounds()
         # make sure reservation start and end time are within
