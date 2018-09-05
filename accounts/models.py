@@ -193,6 +193,10 @@ class Vehicle(models.Model):
     size = models.PositiveIntegerField(choices=VEHICLE_SIZES)
     license_plate = models.CharField(max_length=15, unique=True)
 
+    def save(self, *args, **kwargs):
+        self.license_plate = self.license_plate.upper()
+        super(Vehicle, self).save()
+
     def __str__(self):
         return "Vehicle: %s - %s %s %s %s" % (
             self.license_plate, self.color, self.year, self.make, self.model)

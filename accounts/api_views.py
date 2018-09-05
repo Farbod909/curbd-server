@@ -128,7 +128,7 @@ class CustomerSelfCurrentReservations(generics.ListAPIView):
     def get_queryset(self):
         return self.request.user.customer.reservations().filter(
             end_datetime__gte=datetime.datetime.now(pytz.utc)).filter(
-            cancelled=False).order_by('-start_datetime')
+            cancelled=False).order_by('start_datetime')
 
 
 class CustomerSelfPreviousReservations(generics.ListAPIView):
@@ -188,7 +188,7 @@ class HostSelfCurrentReservations(generics.ListAPIView):
     def get_queryset(self):
         try:
             return self.request.user.host.reservations().filter(
-                end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
+                end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('start_datetime')
         except Host.DoesNotExist:
             raise Http404
 

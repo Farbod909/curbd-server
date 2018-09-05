@@ -448,7 +448,7 @@ class ParkingSpaceCurrentReservations(generics.ListAPIView):
 
     def get_queryset(self):
         return ParkingSpace.objects.get(pk=self.kwargs['pk']).reservations().filter(
-            end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('-start_datetime')
+            end_datetime__gte=datetime.datetime.now(pytz.utc)).order_by('start_datetime')
 
 
 class ParkingSpacePreviousReservations(generics.ListAPIView):
@@ -501,15 +501,21 @@ class ReservationCancel(APIView):
                 reservation.vehicle.customer != request.user.customer:
             return Response(status=status.HTTP_403_FORBIDDEN)
         else:
-            reservation.cancelled = True
-            reservation.save()
-
             send_mail(
                 '[CANCELLATION]',
                 "reservation id: %s,\n reservation cost: %s,\n reservation host income: %s,\n reserver id: %s,\n reserver full name: %s" %
                 (reservation.id, reservation.cost, reservation.host_income,
                  reservation.vehicle.customer.user.id, reservation.vehicle.customer.user.get_full_name()),
                 'no-reply@curbdparking.com', [config('CANCEL_RECIPIENT')])
+
+            reservation.cancelled = True
+            reservation.cost = reservation.cost // 2
+            reservation.host_income = reservation.host_income // 2
+            if abs((reservation.start_datetime - datetime.datetime.now(pytz.utc)).total_seconds()) > 3600:
+                reservation.cost = 0
+                reservation.host_income = 0
+
+            reservation.save()
 
             return Response("Success", status=status.HTTP_200_OK)
 
