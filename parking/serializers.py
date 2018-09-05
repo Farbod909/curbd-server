@@ -113,7 +113,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         model = Reservation
         fields = '__all__'
         # exclude = ('for_repeating',)
-        read_only_fields = ('fixed_availability', 'repeating_availability',)
+        read_only_fields = ('fixed_availability', 'repeating_availability', 'cost', 'host_income')
         depth = 1
 
     def create(self, validated_data):

@@ -29,12 +29,21 @@ def ephemeral_keys(request):
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
-def charge(request):
+def charge_reservation(request):
     amount = request.POST['amount']
     source = request.POST['source']
-    # metadata = request.POST['metadata']
+    reservation = Reservation.objects.get(id=request.POST['reservation_id'])
     statement_descriptor = request.POST['statement_descriptor']
     customer = request.user.customer.stripe_customer_id
+
+    if reservation.cost != int(amount):
+        send_mail(
+            "Potential Fraudulent Activity",
+            "Suspected user id: %s\nThe cost of the reservation (in U.S. cents) is %s, but this user tried to pay %s." %
+            (request.user.id, reservation.cost, amount),
+            "security@curbdparking.com",
+            [config('PAYOUT_REQUEST_RECIPIENT')])
+        return Response(status=403)
 
     try:
         stripe.Charge.create(
@@ -44,8 +53,7 @@ def charge(request):
             customer=customer,
             description="Charge for " + request.user.email,
             statement_descriptor=statement_descriptor,
-            # metadata=metadata
-            # TODO: set reservation id as metadata
+            metadata={'reservation_id': reservation.id},
         )
 
     except:

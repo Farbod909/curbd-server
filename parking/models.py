@@ -8,6 +8,7 @@ import calendar
 from enum import Enum
 
 from accounts.models import Host, Address, VEHICLE_SIZES
+from payment.helpers import calculate_customer_price
 from .fields import ChoiceArrayField
 from .helpers import get_weekday_span_between
 
@@ -424,14 +425,20 @@ class Reservation(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def set_parking_space_and_for_repeating_fields(self):
+    def set_derived_fields(self):
         if self.for_repeating is None:
             if self.repeating_availability is not None:
                 self.for_repeating = True
                 self.parking_space = self.repeating_availability.parking_space
+                self.cost = calculate_customer_price(self.repeating_availability.pricing, self.minutes())
             else:
                 self.for_repeating = False
                 self.parking_space = self.fixed_availability.parking_space
+                self.cost = calculate_customer_price(self.fixed_availability.pricing, self.minutes())
+
+        self.host_income = (self.cost * (1 - 0.029) - 30) * 0.8
+        # make sure the host never loses money
+        self.host_income = max(0.0, self.host_income)
 
     def check_end_comes_after_start(self):
         if self.start_datetime > self.end_datetime:
@@ -469,21 +476,20 @@ class Reservation(models.Model):
                 raise ValidationError("Overlaps with other reservation")
 
     def save(self, *args, **kwargs):
-        self.set_parking_space_and_for_repeating_fields()  # set the 'for_repeating' field
+        self.set_derived_fields()  # set the 'for_repeating' field
         self.check_end_comes_after_start()  # make sure reservation end time comes after its start time
         self.check_start_and_end_within_availability_bounds()
         # make sure reservation start and end time are within
         # start and end time of its availability
         self.check_reservation_overlap()
 
-        self.host_income = (self.cost * (1 - 0.029) - 30) * 0.8
-        # make sure the host never loses money
-        self.host_income = max(0.0, self.host_income)
-
         super(Reservation, self).save(*args, **kwargs)
 
     def overlaps_with(self, start_datetime, end_datetime):
         return (self.start_datetime <= end_datetime) and (self.end_datetime >= start_datetime)
+
+    def minutes(self):
+        return int((self.end_datetime - self.start_datetime).total_seconds() / 60.0)
 
     def __str__(self):
         return "%s: %s - %s" % (

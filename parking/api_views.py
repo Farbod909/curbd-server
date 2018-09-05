@@ -30,6 +30,7 @@ from .serializers import (
     ParkingSpaceSerializer, FixedAvailabilitySerializer,
     RepeatingAvailabilitySerializer, ReservationSerializer, ParkingSpaceMinimalSerializer)
 from accounts.models import Host, Address
+from payment.helpers import calculate_customer_price
 
 
 class ParkingSpaceList(generics.ListCreateAPIView):
@@ -161,7 +162,12 @@ class ParkingSpaceSearch(APIView):
             )
         else:
             # reserving a spot over the span of multiple days
-            weekdays = get_weekday_span_between(start_day_of_week, end_day_of_week)
+            if (end_datetime.day - start_datetime.day) >= 7:
+                # make sure to include every day of the week if duration is one week or more
+                weekdays = get_weekday_span_between('Sun', 'Sat')
+            else:
+                weekdays = get_weekday_span_between(start_day_of_week, end_day_of_week)
+
             repeating_availabilities = RepeatingAvailability.objects.select_related('parking_space').filter(
                 (
                     Q(parking_space__deleted=False) &
@@ -229,7 +235,7 @@ class ParkingSpaceSearch(APIView):
         parking_spaces = [
             {
                 "parking_space": ParkingSpaceMinimalSerializer(parking_space).data,
-                "pricing": pricing
+                "price": calculate_customer_price(pricing, ((end_datetime - start_datetime).total_seconds() / 60.0))
             }
             for parking_space_id, (parking_space, pricing) in parking_spaces_map.items()]
 
@@ -290,13 +296,24 @@ class ReservationList(generics.ListCreateAPIView):
             # if there is no fixed availability move on to
             # check if there is a repeating availability.
             try:
-                day_of_week = calendar.day_name[start_datetime.weekday()][:3]
-                # POSSIBLE ADDITION: allow start_datetime and end_datetime to be on
-                # two different weekdays
-                repeating_availability = RepeatingAvailability.objects.get(
-                    Q(parking_space=parking_space) &
-                    (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
-                    Q(repeating_days__contains=[day_of_week]))
+                start_day_of_week = calendar.day_name[start_datetime.weekday()][:3]
+                end_day_of_week = calendar.day_name[end_datetime.weekday()][:3]
+
+                if start_day_of_week == end_day_of_week:
+                    repeating_availability = RepeatingAvailability.objects.get(
+                        Q(parking_space=parking_space) &
+                        (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
+                        Q(repeating_days__contains=[start_day_of_week]))
+                else:
+                    if (end_datetime.day - start_datetime.day) >= 7:
+                        # make sure to include every day of the week if duration is one week or more
+                        weekdays = get_weekday_span_between('Sun', 'Sat')
+                    else:
+                        weekdays = get_weekday_span_between(start_day_of_week, end_day_of_week)
+                    repeating_availability = RepeatingAvailability.objects.get(
+                        Q(parking_space=parking_space) &
+                        Q(all_day=True) &
+                        Q(repeating_days__contains=weekdays))
 
             except ObjectDoesNotExist:
                 # neither a fixed availability nor a repeating
@@ -328,13 +345,26 @@ class ParkingSpaceAvailability(generics.RetrieveAPIView):
         start_datetime = dateutil.parser.parse(start_datetime_iso)
         end_datetime = dateutil.parser.parse(end_datetime_iso)
 
-        day_of_week = calendar.day_name[start_datetime.weekday()][:3]
         try:
-            RepeatingAvailability.objects.get(
-                Q(parking_space=parking_space) &
-                (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
-                Q(repeating_days__contains=[day_of_week])
-            )
+            start_day_of_week = calendar.day_name[start_datetime.weekday()][:3]
+            end_day_of_week = calendar.day_name[end_datetime.weekday()][:3]
+
+            if start_day_of_week == end_day_of_week:
+                RepeatingAvailability.objects.get(
+                    Q(parking_space=parking_space) &
+                    (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
+                    Q(repeating_days__contains=[start_day_of_week]))
+            else:
+                if (end_datetime.day - start_datetime.day) >= 7:
+                    # make sure to include every day of the week if duration is one week or more
+                    weekdays = get_weekday_span_between('Sun', 'Sat')
+                else:
+                    weekdays = get_weekday_span_between(start_day_of_week, end_day_of_week)
+                RepeatingAvailability.objects.get(
+                    Q(parking_space=parking_space) &
+                    Q(all_day=True) &
+                    Q(repeating_days__contains=weekdays))
+
         except ObjectDoesNotExist:
             try:
                 FixedAvailability.objects.get(
@@ -357,13 +387,25 @@ class ParkingSpaceAvailability(generics.RetrieveAPIView):
         start_datetime = dateutil.parser.parse(start_datetime_iso)
         end_datetime = dateutil.parser.parse(end_datetime_iso)
 
-        day_of_week = calendar.day_name[start_datetime.weekday()][:3]
         try:
-            return RepeatingAvailability.objects.get(
-                Q(parking_space=parking_space) &
-                (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
-                Q(repeating_days__contains=[day_of_week])
-            )
+            start_day_of_week = calendar.day_name[start_datetime.weekday()][:3]
+            end_day_of_week = calendar.day_name[end_datetime.weekday()][:3]
+
+            if start_day_of_week == end_day_of_week:
+                return RepeatingAvailability.objects.get(
+                    Q(parking_space=parking_space) &
+                    (Q(all_day=True) | (Q(start_time__lte=start_datetime.time()) & Q(end_time__gte=end_datetime.time()))) &
+                    Q(repeating_days__contains=[start_day_of_week]))
+            else:
+                if (end_datetime.day - start_datetime.day) >= 7:
+                    # make sure to include every day of the week if duration is one week or more
+                    weekdays = get_weekday_span_between('Sun', 'Sat')
+                else:
+                    weekdays = get_weekday_span_between(start_day_of_week, end_day_of_week)
+                return RepeatingAvailability.objects.get(
+                    Q(parking_space=parking_space) &
+                    Q(all_day=True) &
+                    Q(repeating_days__contains=weekdays))
         except ObjectDoesNotExist:
             try:
                 return FixedAvailability.objects.get(
