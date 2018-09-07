@@ -14,6 +14,7 @@ from decouple import config
 from enum import Enum
 
 from .managers import UserManager
+from curbd.models import SoftDeletionModel
 
 import stripe
 stripe.api_key = config('STRIPE_SECRET_KEY')
@@ -110,6 +111,10 @@ class Customer(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True)
     stripe_customer_id = models.CharField(max_length=30, unique=True, null=False)
 
+    @property
+    def vehicles(self):
+        return Vehicle.objects.filter(customer=self)
+
     def reservations(self):
         from parking.models import Reservation
         return Reservation.objects.filter(vehicle__customer=self)
@@ -181,7 +186,7 @@ VEHICLE_SIZES = (
 )
 
 
-class Vehicle(models.Model):
+class Vehicle(SoftDeletionModel):
 
     customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
