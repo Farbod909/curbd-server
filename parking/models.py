@@ -8,6 +8,7 @@ import calendar
 from enum import Enum
 
 from accounts.models import Host, Address, VEHICLE_SIZES
+from curbd.models import SoftDeletionModel
 from payment.helpers import calculate_customer_price
 from .fields import ChoiceArrayField
 from .helpers import get_weekday_span_between
@@ -45,7 +46,7 @@ class ParkingSpaceLegalType(Enum):
     Business = "Business"
 
 
-class ParkingSpace(models.Model):
+class ParkingSpace(SoftDeletionModel):
 
     FEATURES = (
         (ParkingSpaceFeature.EV_charging.value, "EV Charging"),
@@ -110,7 +111,6 @@ class ParkingSpace(models.Model):
     legal_type = models.CharField(max_length=50, choices=LEGAL_TYPES)
 
     is_active = models.BooleanField(default=False)
-    deleted = models.BooleanField(default=False)
 
     # TODO: parking space photos
 
@@ -387,7 +387,7 @@ class RepeatingAvailability(models.Model):
                 self.end_time.strftime("%H:%M"))
 
 
-class Reservation(models.Model):
+class Reservation(SoftDeletionModel):
     from accounts.models import Vehicle
 
     vehicle = models.ForeignKey(Vehicle, on_delete=models.PROTECT)

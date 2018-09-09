@@ -147,7 +147,7 @@ class ParkingSpaceSearch(APIView):
         if start_day_of_week == end_day_of_week:
             repeating_availabilities = RepeatingAvailability.objects.select_related('parking_space').filter(
                 (
-                    Q(parking_space__deleted=False) &
+                    Q(parking_space__deleted_at=None) &
                     Q(parking_space__is_active=True) &
                     Q(parking_space__longitude__gte=bottom_left_long) &
                     Q(parking_space__longitude__lte=top_right_long) &
@@ -170,7 +170,7 @@ class ParkingSpaceSearch(APIView):
 
             repeating_availabilities = RepeatingAvailability.objects.select_related('parking_space').filter(
                 (
-                    Q(parking_space__deleted=False) &
+                    Q(parking_space__deleted_at=None) &
                     Q(parking_space__is_active=True) &
                     Q(parking_space__longitude__gte=bottom_left_long) &
                     Q(parking_space__longitude__lte=top_right_long) &
@@ -185,7 +185,7 @@ class ParkingSpaceSearch(APIView):
 
         fixed_availabilities = FixedAvailability.objects.select_related('parking_space').filter(
             (
-                Q(parking_space__deleted=False) &
+                Q(parking_space__deleted_at=None) &
                 Q(parking_space__is_active=True) &
                 Q(parking_space__longitude__gte=bottom_left_long) &
                 Q(parking_space__longitude__lte=top_right_long) &
