@@ -295,8 +295,8 @@ class RepeatingAvailability(models.Model):
     parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    start_time = models.TimeField(null=True)
-    end_time = models.TimeField(null=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
     repeating_days = ChoiceArrayField(
         models.CharField(max_length=15, choices=DAYS_OF_THE_WEEK))
     all_day = models.BooleanField(default=False, null=False)
