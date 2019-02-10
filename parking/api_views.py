@@ -66,7 +66,6 @@ class ParkingSpaceList(generics.ListCreateAPIView):
             host = Host.objects.create(user=self.request.user)
             serializer.validated_data['host'] = host
 
-        # create parking space images
         parking_space = serializer.save()
 
         for image in self.request.data.getlist('images'):

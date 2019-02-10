@@ -81,7 +81,7 @@ class ParkingSpace(SoftDeletionModel):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, db_index=True)
 
-    address = models.OneToOneField(Address, on_delete=models.PROTECT, null=True)
+    address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True)
 
     available_spaces = models.PositiveIntegerField(
         "Number of spaces available",
@@ -104,7 +104,7 @@ class ParkingSpace(SoftDeletionModel):
         max_length=50,
         help_text="e.g. '123 Robertson' or 'Sam's Diner'")
     instructions = models.CharField(
-        max_length=1000, blank=True,
+        max_length=1000, blank=True, null=True,
         help_text="Any instructions that will help customers find the parking spot")
 
     physical_type = models.CharField(max_length=50, choices=PHYSICAL_TYPES)
