@@ -8,6 +8,7 @@ urlpatterns = [
     path('users/<int:pk>/', api_views.UserDetail.as_view(), name='user-detail'),
     path('users/self/', api_views.UserSelfDetail.as_view(), name='user-self-detail'),
     path('users/<int:pk>/change_password/', api_views.ChangePassword.as_view(), name='user-change-password'),
+    path('users/<int:pk>/reset_password/', api_views.ResetPassword.as_view(), name='user-reset-password'),
     path('users/<int:pk>/customer/', api_views.UserCustomer.as_view(), name='user-customer'),
     path('users/<int:pk>/host/', api_views.UserHost.as_view(), name='user-host'),
 

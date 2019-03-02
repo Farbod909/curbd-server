@@ -32,6 +32,14 @@ class IsAdminOrIsTargetUser(permissions.BasePermission):
         return request.user.is_superuser or obj == request.user
 
 
+class IsAdmin(permissions.BasePermission):
+    """
+    Custom permission to only allow admin to access view
+    """
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser
+
+
 class IsStaffOrWriteOnly(permissions.BasePermission):
     """
     Custom permission to only allow staff members to GET list of users

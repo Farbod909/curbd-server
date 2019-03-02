@@ -84,6 +84,10 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(required=True)
+
+
 class VehicleSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     url = serializers.HyperlinkedIdentityField(
