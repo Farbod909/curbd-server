@@ -1,6 +1,7 @@
 import dateutil.parser
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.http import Http404
 from django.utils.datastructures import MultiValueDictKeyError
 
@@ -272,3 +273,9 @@ class VehicleDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = VehicleSerializer
     permission_classes = (IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly,)
 
+class EmailView(APIView):
+    queryset = Vehicle.objects.all()
+    def post(self, request):
+        email = [request.data["email"]]
+        send_mail("Gottem", "Here is your verification link sir", "no-reply@curbdparking.com", email)
+        return Response("Success", status=200)

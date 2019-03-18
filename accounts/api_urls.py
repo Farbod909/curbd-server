@@ -1,8 +1,9 @@
 from django.urls import path
 
 from . import api_views
+from django.contrib.auth import views as auth_views
 
-
+#(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})
 urlpatterns = [
     path('users/', api_views.UserList.as_view(), name='user-list'),
     path('users/<int:pk>/', api_views.UserDetail.as_view(), name='user-detail'),
@@ -11,6 +12,8 @@ urlpatterns = [
     path('users/<int:pk>/reset_password/', api_views.ResetPassword.as_view(), name='user-reset-password'),
     path('users/<int:pk>/customer/', api_views.UserCustomer.as_view(), name='user-customer'),
     path('users/<int:pk>/host/', api_views.UserHost.as_view(), name='user-host'),
+    path('forget_password/1/',
+        api_views.EmailView.as_view(), name='forget_password_confirm'),
 
     path('customers/', api_views.CustomerList.as_view(), name='customer-list'),
     path('customers/<int:pk>/', api_views.CustomerDetail.as_view(), name='customer-detail'),
