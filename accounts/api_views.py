@@ -273,6 +273,7 @@ class VehicleDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = VehicleSerializer
     permission_classes = (IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly,)
 
+
 class EmailView(APIView):
     queryset = Vehicle.objects.all()
     def post(self, request):
