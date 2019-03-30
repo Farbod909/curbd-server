@@ -11,6 +11,8 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
-    path('apple-app-site-association/', apple_app_site_association_view, name='apple-app-site-association'),
+    # This was moved to the curbdparking.com domain.
+    # We might need to move it back here in the future under the curbd.app domain?
+    # path('apple-app-site-association/', apple_app_site_association_view, name='apple-app-site-association'),
     path('parking/', include('parking.urls')),
 ]
