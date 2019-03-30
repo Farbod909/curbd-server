@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import api_views
 
@@ -11,6 +11,8 @@ urlpatterns = [
     path('users/<int:pk>/reset_password/', api_views.ResetPassword.as_view(), name='user-reset-password'),
     path('users/<int:pk>/customer/', api_views.UserCustomer.as_view(), name='user-customer'),
     path('users/<int:pk>/host/', api_views.UserHost.as_view(), name='user-host'),
+
+    path('forget_password/', include('django_rest_passwordreset.urls', namespace='forget-password')),
 
     path('customers/', api_views.CustomerList.as_view(), name='customer-list'),
     path('customers/<int:pk>/', api_views.CustomerDetail.as_view(), name='customer-detail'),

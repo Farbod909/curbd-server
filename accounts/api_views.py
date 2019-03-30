@@ -1,6 +1,5 @@
 import dateutil.parser
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.utils.datastructures import MultiValueDictKeyError
 
@@ -271,4 +270,3 @@ class VehicleDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
     permission_classes = (IsAdminOrIsVehicleOwnerOrIfIsStaffReadOnly,)
-

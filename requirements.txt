@@ -4,6 +4,7 @@ chardet==3.0.4
 Django==2.1
 django-filter==2.0.0
 django-filters==0.2.1
+django-rest-passwordreset==0.9.7
 django-storages==1.6.6
 django-webpack-loader==0.6.0
 djangorestframework==3.8.2
