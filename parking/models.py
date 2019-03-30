@@ -460,20 +460,25 @@ class Reservation(SoftDeletionModel):
                 raise ValidationError("Start and end time of reservation is not within "
                                       "bounds of start and end time of availability")
 
-    def check_reservation_overlap(self):
-        if self.for_repeating:
-            parking_space = self.repeating_availability.parking_space
-        else:
-            parking_space = self.fixed_availability.parking_space
-
-        reservations = parking_space.reservations().filter(cancelled=False)
+    def check_has_available_spaces(self):
+        parking_space = self.repeating_availability.parking_space if self.for_repeating else self.fixed_availability.parking_space
+        other_reservations = parking_space.reservations().filter(cancelled=False)
 
         if self.pk is not None:
-            reservations = reservations.exclude(pk=self.pk)
+            other_reservations = other_reservations.exclude(pk=self.pk)
 
-        for reservation in reservations:
+        available_spaces = parking_space.available_spaces
+
+        for reservation in other_reservations:
             if self.overlaps_with(reservation.start_datetime, reservation.end_datetime):
-                raise ValidationError("Overlaps with other reservation")
+                available_spaces -= 1
+                if available_spaces <= 0:
+                    raise ValidationError("Not enough available spaces at this time.")
+
+    def check_vehicle_is_available(self):
+        for reservation in self.vehicle.reservation_set.all():
+            if self.overlaps_with(reservation.start_datetime, reservation.end_datetime):
+                raise ValidationError("this car already is in use during this time.")
 
     def save(self, *args, **kwargs):
         self.set_derived_fields()  # set the 'for_repeating' field
@@ -481,7 +486,8 @@ class Reservation(SoftDeletionModel):
         self.check_start_and_end_within_availability_bounds()
         # make sure reservation start and end time are within
         # start and end time of its availability
-        self.check_reservation_overlap()
+        self.check_has_available_spaces()  # make sure the number of available spaces is greater than 0
+        self.check_vehicle_is_available()  # check if vehicle is already in use during the reservation time
 
         super(Reservation, self).save(*args, **kwargs)
 
