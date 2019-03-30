@@ -3,9 +3,6 @@ from django.urls import path, include
 from . import api_views
 
 
-# (?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})
-
-
 urlpatterns = [
     path('users/', api_views.UserList.as_view(), name='user-list'),
     path('users/<int:pk>/', api_views.UserDetail.as_view(), name='user-detail'),
