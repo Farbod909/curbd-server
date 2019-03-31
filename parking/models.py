@@ -478,7 +478,7 @@ class Reservation(SoftDeletionModel):
     def check_vehicle_is_available(self):
         for reservation in self.vehicle.reservation_set.all():
             if self.overlaps_with(reservation.start_datetime, reservation.end_datetime):
-                raise ValidationError("this car already is in use during this time.")
+                raise ValidationError("this vehicle is already in use during this time.")
 
     def save(self, *args, **kwargs):
         self.set_derived_fields()  # set the 'for_repeating' field
