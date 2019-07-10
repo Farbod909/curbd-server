@@ -8,3 +8,5 @@
 
 all_static/
 env/
+
+.vscode/
