@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load render_bundle from webpack_loader %}
 
 {% block css_imports %}
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
@@ -24,9 +23,8 @@
 {#        </div>#}
 {#    </div>#}
     <div id="root">
-        This is where react will be mounted
+        Welcome to Curbd!
     </div>
-    {% render_bundle 'main' %}
 {% endblock %}
 
 {% block js_imports %}

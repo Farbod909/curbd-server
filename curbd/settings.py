@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_rest_passwordreset',
     'django_filters',
-    'webpack_loader',
 ]
 
 REST_FRAMEWORK = {
