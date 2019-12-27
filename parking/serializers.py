@@ -81,7 +81,7 @@ class ParkingSpaceMinimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ParkingSpace
-        fields = ('id', 'name', 'latitude', 'longitude', 'features',
+        fields = ('id', 'name', 'host', 'latitude', 'longitude', 'features',
                   'instructions', 'size', 'available_spaces', 'images',
                   "physical_type", "legal_type", "is_active")
 

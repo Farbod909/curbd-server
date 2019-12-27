@@ -73,6 +73,7 @@ class ParkingSpace(SoftDeletionModel):
     host = models.ForeignKey(
         Host,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         help_text="The host that the parking space belongs to")
 

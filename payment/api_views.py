@@ -67,11 +67,18 @@ def charge_reservation(request):
 def venmo_payout(request):
     host = request.user.host
     amount = host.available_balance
-    venmo_email = request.data.get('venmo_email', host.venmo_email)
-
-    if host.venmo_email != venmo_email:
-        host.venmo_email = venmo_email
-        host.save()
+    venmo_address_type = request.data.get('venmo_address_type')
+    
+    if venmo_address_type == "email":
+        venmo_address = request.data.get('venmo_address', host.venmo_email)
+        if host.venmo_email != venmo_address:
+            host.venmo_email = venmo_address
+            host.save()
+    elif venmo_address_type == "phone":
+        venmo_address = request.data.get('venmo_address', host.venmo_phone)
+        if host.venmo_phone != venmo_address:
+            host.venmo_phone = venmo_address
+            host.save()
 
     Reservation.objects.filter(
         Q(fixed_availability__parking_space__host=host) |
@@ -82,8 +89,8 @@ def venmo_payout(request):
 
     send_mail(
         '[PAYOUT]',
-        "amount: %s,\n venmo email: %s,\n user id: %s,\n user full name: %s" %
-        (amount, venmo_email, request.user.id, request.user.get_full_name()),
+        "amount: %s,\n venmo address: %s,\n user id: %s,\n user full name: %s" %
+        (amount, venmo_address, request.user.id, request.user.get_full_name()),
         'no-reply@curbdparking.com', [config('PAYOUT_REQUEST_RECIPIENT')])
 
     return Response("Success", 200)
